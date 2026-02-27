@@ -21,7 +21,10 @@ OpenClaw 是一个强大的 AI 个人助手，可以：
 curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
 chmod +x install.sh && ./install.sh
 
-# 方式 2: 直接执行
+# 方式 2: 一行命令 (下载并执行)
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
+
+# 方式 3: 直接执行
 bash <(curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh)
 ```
 
@@ -31,7 +34,10 @@ bash <(curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/
 irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
 .\install.ps1
 
-# 方式 2: 直接执行
+# 方式 2: 一行命令 (下载并执行)
+irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1; .\install.ps1
+
+# 方式 3: 直接在线执行
 irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 ```
 
@@ -52,16 +58,22 @@ npx openclaw-quickstart
 
 **macOS / Linux (使用 ghproxy 镜像):**
 ```bash
-# 下载后执行 (推荐)
+# 方式 1: 下载后执行 (推荐)
 curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
 chmod +x install.sh && ./install.sh
+
+# 方式 2: 一行命令 (下载并执行)
+curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
 ```
 
 **Windows PowerShell (使用 ghproxy 镜像):**
 ```powershell
-# 下载后执行 (推荐)
+# 方式 1: 下载后执行 (推荐)
 irm https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
 .\install.ps1
+
+# 方式 2: 一行命令 (下载并执行)
+irm https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1; .\install.ps1
 ```
 
 **Windows CMD (使用 ghproxy 镜像):**
