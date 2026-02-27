@@ -1,4 +1,4 @@
-# OpenClaw 快速安装器 (Windows PowerShell)
+﻿# OpenClaw 快速安装器 (Windows PowerShell)
 #
 # 用法 (推荐 - 下载后执行):
 #   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
