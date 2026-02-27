@@ -1,0 +1,46 @@
+{
+  "name": "openclaw-quickstart",
+  "version": "1.2.0",
+  "description": "一键安装 OpenClaw 并配置自定义模型和聊天渠道 (Telegram/Discord/飞书)",
+  "main": "bin/cli.js",
+  "bin": {
+    "openclaw-quickstart": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js"
+  },
+  "keywords": [
+    "openclaw",
+    "ai",
+    "assistant",
+    "cli",
+    "installer",
+    "快速安装",
+    "telegram",
+    "discord",
+    "feishu",
+    "lark",
+    "gpt-4o",
+    "claude",
+    "deepseek",
+    "kimi",
+    "glm",
+    "qwen"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrcatai/openclaw-quickstart.git"
+  },
+  "files": [
+    "bin/",
+    "install.sh",
+    "install.ps1",
+    "install.cmd",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
