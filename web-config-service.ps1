@@ -460,9 +460,14 @@ function Show-ServiceStatus {
     Write-Host ""
 }
 
+# 获取脚本参数
+$scriptArgs = $args
+
 # 主函数
 function Main {
-    $command = if ($args.Count -gt 0) { $args[0].ToLower() } else { "status" }
+    param([string[]]$Arguments)
+
+    $command = if ($Arguments.Count -gt 0) { $Arguments[0].ToLower() } else { "status" }
 
     switch ($command) {
         "install" {
@@ -503,4 +508,4 @@ function Main {
     }
 }
 
-Main $args
+Main $scriptArgs
