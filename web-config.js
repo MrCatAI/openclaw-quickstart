@@ -505,7 +505,24 @@ const server = http.createServer((req, res) => {
                 saveConfig(modelConfig);
 
                 setTimeout(() => {
-                    startGateway();
+                    const started = startGateway();
+
+                    // 标记配置完成
+                    try {
+                        fs.writeFileSync(
+                            path.join(os.homedir(), '.openclaw', 'web-config-done'),
+                            JSON.stringify({ timestamp: Date.now(), gatewayStarted: started })
+                        );
+                    } catch (e) {}
+
+                    // 关闭服务器
+                    server.close(() => {
+                        console.log('\n✓ 配置已完成，Web 服务器关闭');
+                        process.exit(0);
+                    });
+
+                    // 5秒后强制退出
+                    setTimeout(() => process.exit(0), 5000);
                 }, 1000);
 
                 res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });

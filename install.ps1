@@ -1067,7 +1067,59 @@ if ($useWebConfig) {
 
     # 启动 Web 配置服务器
     & node $webConfigScript
-    exit 0
+
+    # 等待一下确保信号文件被写入
+    Start-Sleep -Seconds 2
+
+    # 检查配置是否完成
+    $doneFile = Join-Path $CONFIG_DIR "web-config-done"
+
+    if (Test-Path $doneFile) {
+        # 显示完成信息
+        Write-Host ""
+        Write-Host "╔══════════════════════════════════════════════════════════╗" -ForegroundColor Green
+        Write-Host "║                                                          ║" -ForegroundColor Green
+        Write-Host "║   🎉 OpenClaw 已成功安装并启动！                         ║" -ForegroundColor Green
+        Write-Host "║                                                          ║" -ForegroundColor Green
+        Write-Host "╚══════════════════════════════════════════════════════════╝" -ForegroundColor Green
+        Write-Host ""
+
+        Write-Host "📋 访问信息:" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  Web 界面:   " -NoNewline; Write-Host "http://127.0.0.1:18789" -ForegroundColor Yellow
+        Write-Host "  配置文件:   " -NoNewline; Write-Host $CONFIG_FILE -ForegroundColor Yellow
+        Write-Host "  工作目录:   " -NoNewline; Write-Host "$CONFIG_DIR\workspace" -ForegroundColor Yellow
+        Write-Host ""
+
+        Write-Host "🛠️ 常用命令:" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "  openclaw agent --message '你好'" -ForegroundColor Cyan
+        Write-Host "      → 在命令行与 AI 助手对话"
+        Write-Host ""
+        Write-Host "  openclaw gateway status" -ForegroundColor Cyan
+        Write-Host "      → 查看服务状态"
+        Write-Host ""
+        Write-Host "  openclaw gateway stop" -ForegroundColor Cyan
+        Write-Host "      → 停止服务"
+        Write-Host ""
+        Write-Host "  openclaw gateway start" -ForegroundColor Cyan
+        Write-Host "      → 启动服务"
+        Write-Host ""
+        Write-Host "  openclaw dashboard" -ForegroundColor Cyan
+        Write-Host "      → 打开 Web 管理界面"
+        Write-Host ""
+
+        # 清理信号文件
+        Remove-Item $doneFile -Force -ErrorAction SilentlyContinue
+
+        exit 0
+    } else {
+        Write-Host ""
+        Write-Warning "配置未完成或被取消"
+        Write-Host "您可以稍后通过编辑配置文件手动配置，或重新运行安装脚本" -ForegroundColor Cyan
+        Write-Host "  配置文件: $CONFIG_FILE" -ForegroundColor Yellow
+        exit 1
+    }
 }
 
 # 命令行配置流程
