@@ -1,6 +1,6 @@
 # OpenClaw 快速安装器 (Windows PowerShell)
-# 用法: iwr -useb https://raw.githubusercontent.com/你的用户名/openclaw-quickstart/main/install.ps1 | iex
-#        & ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/你的用户名/openclaw-quickstart/main/install.ps1))) -Tag beta -SkipConfig -DryRun
+# 用法: iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+#        & ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1))) -Tag beta -SkipConfig -DryRun
 
 param(
     [string]$Tag = "latest",

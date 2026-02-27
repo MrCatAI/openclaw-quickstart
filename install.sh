@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # OpenClaw 快速安装器
-# 用法: curl -fsSL https://raw.githubusercontent.com/你的用户名/openclaw-quickstart/main/install.sh | bash
+# 用法: curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
 
 BOLD='\033[1m'
 GREEN='\033[32m'

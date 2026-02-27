@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM OpenClaw 快速安装器 (Windows CMD)
-REM 用法: curl -fsSL https://raw.githubusercontent.com/你的用户名/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+REM 用法: curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
 
 set "SKIP_CONFIG=0"
 set "SKIP_START=0"
@@ -70,7 +70,7 @@ set "TMP=%TEMP%\openclaw-quickstart.ps1"
 
 REM 允许通过环境变量覆盖 URL
 if not "%OPENCLAW_INSTALL_PS1_URL%"=="" set "INSTALL_PS1_URL=%OPENCLAW_INSTALL_PS1_URL%"
-if "%INSTALL_PS1_URL%"=="" set "INSTALL_PS1_URL=https://raw.githubusercontent.com/你的用户名/openclaw-quickstart/main/install.ps1"
+if "%INSTALL_PS1_URL%"=="" set "INSTALL_PS1_URL=https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1"
 
 REM 优先使用本地文件
 if exist "%~dp0install.ps1" (
