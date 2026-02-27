@@ -65,6 +65,39 @@ npx --registry=https://registry.npmmirror.com openclaw-quickstart
 > - `https://cors.isteed.cc/github.com/`
 > - 将上面命令中的 `mirror.ghproxy.com` 替换为这些镜像地址
 
+---
+
+## ⚠️ 故障排除
+
+### 中文显示为问号 (???)
+
+**Windows PowerShell:**
+```powershell
+# 方法 1: 先设置编码再执行
+chcp 65001
+iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+```
+
+**推荐解决方案:**
+1. 使用 **Windows Terminal** 而不是经典控制台
+2. 在 PowerShell 配置文件中添加 UTF-8 设置:
+   ```powershell
+   # 编辑 $PROFILE
+   [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+   $OutputEncoding = [System.Text.Encoding]::UTF8
+   ```
+3. 使用 **npm 方式** 安装（通常无编码问题）:
+   ```powershell
+   npx --registry=https://registry.npmmirror.com openclaw-quickstart
+   ```
+
+### 镜像连接失败
+
+如果 `mirror.ghproxy.com` 无法访问，尝试：
+- 直接从 GitHub 下载（需要代理）
+- 使用 npm 方式安装
+- 尝试备用镜像
+
 ## 📋 安装流程
 
 安装器将引导您完成以下步骤：

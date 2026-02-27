@@ -1,15 +1,30 @@
-﻿# OpenClaw 快速安装器 (Windows PowerShell)
+﻿# OpenClaw Quickstart Installer
 #
-# 一键安装:
+# Quick Install:
 #   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 #
-# 国内用户 (镜像):
+# China (Mirror):
 #   iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 
-# 设置控制台编码为 UTF-8，确保中文和 emoji 正常显示
-$OutputEncoding = [System.Text.Encoding]::UTF8
+# UTF-8 Encoding Setup - MUST be at the very top
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-chcp 65001 | Out-Null
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$PSDefaultParameterValues['*:Encoding'] = 'utf8'
+chcp 65001 2>$null | Out-Null
+
+# Encoding diagnostic - only show if there might be an issue
+if ($Host.Name -eq 'ConsoleHost') {
+    $currentCodePage = [Console]::OutputEncoding.CodePage
+    if ($currentCodePage -ne 65001 -and $currentCodePage -ne 1200 -and $currentCodePage -ne 1201) {
+        Write-Warning "Console code page is $currentCodePage, UTF-8 (65001) recommended for Chinese display"
+        Write-Host "If you see '?' instead of Chinese/emoji, try:" -ForegroundColor Yellow
+        Write-Host "  1. Use Windows Terminal instead of classic Console" -ForegroundColor Cyan
+        Write-Host "  2. Run: chcp 65001 before executing this script" -ForegroundColor Cyan
+        Write-Host "  3. Set PowerShell UTF-8 encoding in settings" -ForegroundColor Cyan
+        Write-Host ""
+    }
+}
 
 $ErrorActionPreference = "Stop"
 
