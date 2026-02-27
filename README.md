@@ -13,7 +13,7 @@ OpenClaw 是一个强大的 AI 个人助手，可以：
 
 ## 🚀 快速开始
 
-### 方式 1：一键安装脚本
+### 🌐 国际用户
 
 **macOS / Linux:**
 ```bash
@@ -30,11 +30,39 @@ iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/ins
 curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
-### 方式 2：npm 包
-
+**npm 包:**
 ```bash
 npx openclaw-quickstart
 ```
+
+---
+
+### 🇨🇳 国内用户（使用镜像加速）
+
+**macOS / Linux (使用 ghproxy 镜像):**
+```bash
+curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
+```
+
+**Windows PowerShell (使用 ghproxy 镜像):**
+```powershell
+iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+```
+
+**Windows CMD (使用 ghproxy 镜像):**
+```cmd
+curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+**npm 包 (使用 cnpm 镜像):**
+```bash
+npx --registry=https://registry.npmmirror.com openclaw-quickstart
+```
+
+> 💡 **提示**: 如果镜像也无法访问，可以尝试以下备用镜像：
+> - `https://ghproxy.net/`
+> - `https://cors.isteed.cc/github.com/`
+> - 将上面命令中的 `mirror.ghproxy.com` 替换为这些镜像地址
 
 ## 📋 安装流程
 
