@@ -1,24 +1,30 @@
 # OpenClaw 快速安装器 (Windows PowerShell)
-# 用法: iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
-#        & ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1))) -Tag beta -SkipConfig -DryRun
+#
+# 用法 (推荐 - 下载后执行):
+#   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
+#   .\install.ps1
+#
+# 用法 (在线执行):
+#   irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+#
+# 用法 (带参数，仅下载后执行支持):
+#   .\install.ps1 -SkipConfig -SkipStart
 
 # 设置控制台编码为 UTF-8，确保中文和 emoji 正常显示
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 chcp 65001 | Out-Null
 
-param(
-    [string]$Tag = "latest",
-    [ValidateSet("npm", "git")]
-    [string]$InstallMethod = "npm",
-    [string]$GitDir,
-    [switch]$NoGitUpdate,
-    [switch]$DryRun,
-    [switch]$SkipConfig,
-    [switch]$SkipStart
-)
-
 $ErrorActionPreference = "Stop"
+
+# 参数初始化 (支持环境变量覆盖)
+$Tag = if ($env:OPENCLAW_TAG) { $env:OPENCLAW_TAG } else { "latest" }
+$InstallMethod = if ($env:OPENCLAW_INSTALL_METHOD) { $env:OPENCLAW_INSTALL_METHOD } else { "npm" }
+$GitDir = $env:OPENCLAW_GIT_DIR
+$NoGitUpdate = if ($env:OPENCLAW_GIT_UPDATE -eq "0") { $true } else { $false }
+$DryRun = if ($env:OPENCLAW_DRY_RUN -eq "1") { $true } else { $false }
+$SkipConfig = if ($env:OPENCLAW_SKIP_CONFIG -eq "1") { $true } else { $false }
+$SkipStart = if ($env:OPENCLAW_SKIP_START -eq "1") { $true } else { $false }
 
 $CONFIG_DIR = "$env:USERPROFILE\.openclaw"
 $CONFIG_FILE = "$CONFIG_DIR\openclaw.json"
@@ -75,31 +81,7 @@ function Write-Step($msg) {
     Write-Host ""
 }
 
-# ============================================
-# 参数处理 (从环境变量读取)
-# ============================================
-
-if (-not $PSBoundParameters.ContainsKey("InstallMethod")) {
-    if (-not [string]::IsNullOrWhiteSpace($env:OPENCLAW_INSTALL_METHOD)) {
-        $InstallMethod = $env:OPENCLAW_INSTALL_METHOD
-    }
-}
-if (-not $PSBoundParameters.ContainsKey("GitDir")) {
-    if (-not [string]::IsNullOrWhiteSpace($env:OPENCLAW_GIT_DIR)) {
-        $GitDir = $env:OPENCLAW_GIT_DIR
-    }
-}
-if (-not $PSBoundParameters.ContainsKey("NoGitUpdate")) {
-    if ($env:OPENCLAW_GIT_UPDATE -eq "0") {
-        $NoGitUpdate = $true
-    }
-}
-if (-not $PSBoundParameters.ContainsKey("DryRun")) {
-    if ($env:OPENCLAW_DRY_RUN -eq "1") {
-        $DryRun = $true
-    }
-}
-
+# 设置 Git 目录默认值
 if ([string]::IsNullOrWhiteSpace($GitDir)) {
     $userHome = [Environment]::GetFolderPath("UserProfile")
     $GitDir = (Join-Path $userHome "openclaw")

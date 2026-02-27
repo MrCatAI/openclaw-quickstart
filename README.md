@@ -17,17 +17,28 @@ OpenClaw 是一个强大的 AI 个人助手，可以：
 
 **macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
+# 方式 1: 下载后执行 (推荐)
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
+chmod +x install.sh && ./install.sh
+
+# 方式 2: 直接执行
+bash <(curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh)
 ```
 
 **Windows PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+# 方式 1: 下载后执行 (推荐)
+irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
+.\install.ps1
+
+# 方式 2: 直接执行
+irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 ```
 
 **Windows CMD:**
 ```cmd
-curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd
+install.cmd
 ```
 
 **npm 包:**
@@ -41,17 +52,22 @@ npx openclaw-quickstart
 
 **macOS / Linux (使用 ghproxy 镜像):**
 ```bash
-curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
+# 下载后执行 (推荐)
+curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
+chmod +x install.sh && ./install.sh
 ```
 
 **Windows PowerShell (使用 ghproxy 镜像):**
 ```powershell
-iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+# 下载后执行 (推荐)
+irm https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
+.\install.ps1
 ```
 
 **Windows CMD (使用 ghproxy 镜像):**
 ```cmd
-curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd
+install.cmd
 ```
 
 **npm 包 (使用 cnpm 镜像):**
