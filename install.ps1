@@ -1,14 +1,10 @@
 ﻿# OpenClaw 快速安装器 (Windows PowerShell)
 #
-# 用法 (推荐 - 下载后执行):
-#   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
-#   .\install.ps1
+# 一键安装:
+#   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 #
-# 用法 (在线执行):
-#   irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
-#
-# 用法 (带参数，仅下载后执行支持):
-#   .\install.ps1 -SkipConfig -SkipStart
+# 国内用户 (镜像):
+#   iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 
 # 设置控制台编码为 UTF-8，确保中文和 emoji 正常显示
 $OutputEncoding = [System.Text.Encoding]::UTF8

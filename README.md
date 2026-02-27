@@ -17,34 +17,12 @@ OpenClaw 是一个强大的 AI 个人助手，可以：
 
 **macOS / Linux:**
 ```bash
-# 方式 1: 下载后执行 (推荐)
-curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
-chmod +x install.sh && ./install.sh
-
-# 方式 2: 一行命令 (下载并执行)
-curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
-
-# 方式 3: 直接执行
-bash <(curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh)
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
 ```
 
 **Windows PowerShell:**
 ```powershell
-# 方式 1: 下载后执行 (推荐)
-irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
-.\install.ps1
-
-# 方式 2: 一行命令 (下载并执行)
-irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1; .\install.ps1
-
-# 方式 3: 直接在线执行
-irm https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
-```
-
-**Windows CMD:**
-```cmd
-curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd
-install.cmd
+iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 ```
 
 **npm 包:**
@@ -58,22 +36,17 @@ npx openclaw-quickstart
 
 **macOS / Linux (使用 ghproxy 镜像):**
 ```bash
-# 方式 1: 下载后执行 (推荐)
-curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
-chmod +x install.sh && ./install.sh
-
-# 方式 2: 一行命令 (下载并执行)
-curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh && chmod +x install.sh && ./install.sh
+curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
 ```
 
 **Windows PowerShell (使用 ghproxy 镜像):**
 ```powershell
-# 方式 1: 下载后执行 (推荐)
-irm https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1
-.\install.ps1
+iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
+```
 
-# 方式 2: 一行命令 (下载并执行)
-irm https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 -o install.ps1; .\install.ps1
+**npm 包 (使用 cnpm 镜像):**
+```bash
+npx --registry=https://registry.npmmirror.com openclaw-quickstart
 ```
 
 **Windows CMD (使用 ghproxy 镜像):**

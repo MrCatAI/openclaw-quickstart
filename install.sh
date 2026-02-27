@@ -3,12 +3,11 @@ set -euo pipefail
 
 # OpenClaw 快速安装器
 #
-# 用法 (推荐 - 下载后执行):
-#   curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh -o install.sh
-#   chmod +x install.sh && ./install.sh
+# 一键安装:
+#   curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
 #
-# 用法 (直接执行):
-#   bash <(curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh)
+# 国内用户 (镜像):
+#   curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
 
 BOLD='\033[1m'
 GREEN='\033[32m'
