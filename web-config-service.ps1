@@ -69,7 +69,7 @@ $ErrorActionPreference = "Stop"
 
 # 设置环境变量
 `$env:NODE_ENV = "production"
-`$env:PORT = "18790"
+`$env:PORT = "18792"
 
 # 设置工作目录
 `$SERVICE_DIR = "$SERVICE_DIR"
@@ -168,7 +168,7 @@ function Install-ServiceWithNSSM {
     $batchScript = @"
 @echo off
 set NODE_ENV=production
-set PORT=18790
+set PORT=18792
 chcp 65001 >nul 2>&1
 cd /d "$SERVICE_DIR"
 node web-config.js
@@ -186,7 +186,7 @@ node web-config.js
 
     & $nssmPath set $SERVICE_NAME Description $SERVICE_DESC
     & $nssmPath set $SERVICE_NAME AppDirectory $SERVICE_DIR
-    & $nssmPath set $SERVICE_NAME AppEnvironmentExtra "NODE_ENV=production" "PORT=18790"
+    & $nssmPath set $SERVICE_NAME AppEnvironmentExtra "NODE_ENV=production" "PORT=18792"
 
     # 设置服务自动启动
     & $nssmPath set $SERVICE_NAME Start SERVICE_AUTO_START
@@ -258,7 +258,7 @@ function Install-WebConfigService {
     Write-Host "  状态:   .\web-config-service.ps1 status" -ForegroundColor Cyan
     Write-Host "  卸载:   .\web-config-service.ps1 uninstall" -ForegroundColor Red
     Write-Host ""
-    Write-Info "Web 配置地址: http://127.0.0.1:18790"
+    Write-Info "Web 配置地址: http://127.0.0.1:18792"
 }
 
 # 启动服务
@@ -272,7 +272,7 @@ function Start-WebConfigService {
         & $nssmPath start $SERVICE_NAME 2>$null
         if ($LASTEXITCODE -eq 0) {
             Write-Success "服务已启动 (NSSM)"
-            Write-Info "访问地址: http://127.0.0.1:18790"
+            Write-Info "访问地址: http://127.0.0.1:18792"
             return
         }
     }
@@ -300,7 +300,7 @@ function Start-WebConfigService {
 
         Write-Success "服务已启动 (后台进程)"
         Write-Info "PID: $($process.Id)"
-        Write-Info "访问地址: http://127.0.0.1:18790"
+        Write-Info "访问地址: http://127.0.0.1:18792"
         Write-Warning "使用 '.\web-config-service.ps1 stop' 停止服务"
     } catch {
         Write-Error "启动失败: $_"
@@ -444,10 +444,10 @@ function Show-ServiceStatus {
 
     # 检查端口
     try {
-        $listener = Get-NetTCPConnection -LocalPort 18790 -ErrorAction SilentlyContinue | Select-Object -First 1
+        $listener = Get-NetTCPConnection -LocalPort 18792 -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($listener) {
             $running = $true
-            Write-Host "  端口: 18790 已监听" -ForegroundColor Green
+            Write-Host "  端口: 18792 已监听" -ForegroundColor Green
         }
     } catch {}
 
@@ -456,7 +456,7 @@ function Show-ServiceStatus {
     }
 
     Write-Host ""
-    Write-Host "  访问地址: http://127.0.0.1:18790" -ForegroundColor Cyan
+    Write-Host "  访问地址: http://127.0.0.1:18792" -ForegroundColor Cyan
     Write-Host ""
 }
 

@@ -1057,7 +1057,7 @@ if ($useWebConfig) {
     Write-Host "  请在浏览器中打开配置页面" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  http://127.0.0.1:18790" -ForegroundColor Yellow
+    Write-Host "  http://127.0.0.1:18792" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "配置完成后将自动启动 OpenClaw Gateway" -ForegroundColor Green
     Write-Host ""

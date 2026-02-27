@@ -13,7 +13,7 @@ const { execSync } = require('child_process');
 
 const CONFIG_DIR = path.join(os.homedir(), '.openclaw');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'openclaw.json');
-const PORT = 18790;
+const PORT = 18792;
 
 // 确保 UTF-8 编码
 process.env.NODE_ENV = 'production';

@@ -61,7 +61,7 @@ curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/we
 node web-config.js
 ```
 
-然后在浏览器中打开 `http://127.0.0.1:18790` 进行配置。
+然后在浏览器中打开 `http://127.0.0.1:18792` 进行配置。
 
 ### 🪟 Windows 服务管理（可选）
 
