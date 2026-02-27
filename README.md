@@ -63,6 +63,40 @@ node web-config.js
 
 然后在浏览器中打开 `http://127.0.0.1:18790` 进行配置。
 
+### 🪟 Windows 服务管理（可选）
+
+如果您希望 Web 配置服务作为系统服务运行（开机自启动），可以使用服务管理器：
+
+```powershell
+# 下载服务管理脚本
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/web-config-service.ps1 -o web-config-service.ps1
+
+# 安装为系统服务
+.\web-config-service.ps1 install
+
+# 启动服务
+.\web-config-service.ps1 start
+
+# 查看状态
+.\web-config-service.ps1 status
+
+# 停止服务
+.\web-config-service.ps1 stop
+
+# 卸载服务
+.\web-config-service.ps1 uninstall
+```
+
+服务管理命令：
+- `install` - 安装为系统服务（自动下载 NSSM 服务管理器）
+- `start` - 启动服务
+- `stop` - 停止服务
+- `restart` - 重启服务
+- `status` - 查看服务状态
+- `uninstall` - 卸载服务
+
+---
+
 **Windows CMD (使用 ghproxy 镜像):**
 ```cmd
 curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd

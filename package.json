@@ -39,6 +39,7 @@
     "install.ps1",
     "install.cmd",
     "web-config.js",
+    "web-config-service.ps1",
     "README.md"
   ],
   "engines": {
