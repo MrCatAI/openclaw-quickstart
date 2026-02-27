@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+REM 设置控制台编码为 UTF-8，确保中文正常显示
+chcp 65001 >nul 2>&1
+
 REM OpenClaw 快速安装器 (Windows CMD)
 REM 用法: curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
 

@@ -2,6 +2,11 @@
 # 用法: iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 #        & ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1))) -Tag beta -SkipConfig -DryRun
 
+# 设置控制台编码为 UTF-8，确保中文和 emoji 正常显示
+$OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+chcp 65001 | Out-Null
+
 param(
     [string]$Tag = "latest",
     [ValidateSet("npm", "git")]
