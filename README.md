@@ -17,17 +17,17 @@ OpenClaw 是一个强大的 AI 个人助手，可以：
 
 **macOS / Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mrcatai/openclaw-quickstart/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.sh | bash
 ```
 
 **Windows PowerShell:**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/mrcatai/openclaw-quickstart/main/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 ```
 
 **Windows CMD:**
 ```cmd
-curl -fsSL https://raw.githubusercontent.com/mrcatai/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
 ### 方式 2：npm 包
