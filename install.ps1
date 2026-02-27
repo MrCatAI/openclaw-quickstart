@@ -451,7 +451,7 @@ function Prompt-Input($prompt, $default = "") {
     if ($default) {
         Write-Host "$prompt [$default]: " -ForegroundColor Cyan -NoNewline
     } else {
-        Write-Host "$prompt: " -ForegroundColor Cyan -NoNewline
+        Write-Host "${prompt}: " -ForegroundColor Cyan -NoNewline
     }
     
     $value = Read-Host
