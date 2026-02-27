@@ -49,6 +49,20 @@ iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/o
 npx --registry=https://registry.npmmirror.com openclaw-quickstart
 ```
 
+---
+
+### 🌐 Web 配置界面（推荐）
+
+如果您在终端中看到中文显示为问号，可以使用 Web 配置界面：
+
+```powershell
+# 下载并启动 Web 配置服务器
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/web-config.js -o web-config.js
+node web-config.js
+```
+
+然后在浏览器中打开 `http://127.0.0.1:18790` 进行配置。
+
 **Windows CMD (使用 ghproxy 镜像):**
 ```cmd
 curl -fsSL https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.cmd -o install.cmd

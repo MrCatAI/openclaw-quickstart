@@ -6,7 +6,19 @@
 # China (Mirror):
 #   iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/install.ps1 | iex
 
-# UTF-8 Encoding Setup - MUST be at the very top
+# 参数定义 (必须在脚本开头)
+param(
+    [string]$Tag = "latest",
+    [ValidateSet("npm", "git")]
+    [string]$InstallMethod = "npm",
+    [string]$GitDir,
+    [switch]$NoGitUpdate,
+    [switch]$DryRun,
+    [switch]$SkipConfig,
+    [switch]$SkipStart
+)
+
+# UTF-8 Encoding Setup
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -28,14 +40,14 @@ if ($Host.Name -eq 'ConsoleHost') {
 
 $ErrorActionPreference = "Stop"
 
-# 参数初始化 (支持环境变量覆盖)
-$Tag = if ($env:OPENCLAW_TAG) { $env:OPENCLAW_TAG } else { "latest" }
-$InstallMethod = if ($env:OPENCLAW_INSTALL_METHOD) { $env:OPENCLAW_INSTALL_METHOD } else { "npm" }
-$GitDir = $env:OPENCLAW_GIT_DIR
-$NoGitUpdate = if ($env:OPENCLAW_GIT_UPDATE -eq "0") { $true } else { $false }
-$DryRun = if ($env:OPENCLAW_DRY_RUN -eq "1") { $true } else { $false }
-$SkipConfig = if ($env:OPENCLAW_SKIP_CONFIG -eq "1") { $true } else { $false }
-$SkipStart = if ($env:OPENCLAW_SKIP_START -eq "1") { $true } else { $false }
+# 支持环境变量覆盖
+if (-not $PSBoundParameters.ContainsKey('Tag') -and $env:OPENCLAW_TAG) { $Tag = $env:OPENCLAW_TAG }
+if (-not $PSBoundParameters.ContainsKey('InstallMethod') -and $env:OPENCLAW_INSTALL_METHOD) { $InstallMethod = $env:OPENCLAW_INSTALL_METHOD }
+if (-not $PSBoundParameters.ContainsKey('GitDir') -and $env:OPENCLAW_GIT_DIR) { $GitDir = $env:OPENCLAW_GIT_DIR }
+if (-not $PSBoundParameters.ContainsKey('NoGitUpdate') -and $env:OPENCLAW_GIT_UPDATE -eq "0") { $NoGitUpdate = $true }
+if (-not $PSBoundParameters.ContainsKey('DryRun') -and $env:OPENCLAW_DRY_RUN -eq "1") { $DryRun = $true }
+if (-not $PSBoundParameters.ContainsKey('SkipConfig') -and $env:OPENCLAW_SKIP_CONFIG -eq "1") { $SkipConfig = $true }
+if (-not $PSBoundParameters.ContainsKey('SkipStart') -and $env:OPENCLAW_SKIP_START -eq "1") { $SkipStart = $true }
 
 $CONFIG_DIR = "$env:USERPROFILE\.openclaw"
 $CONFIG_FILE = "$CONFIG_DIR\openclaw.json"
@@ -995,7 +1007,7 @@ if (-not (Check-OpenClaw)) {
 if (Test-Path $CONFIG_FILE) {
     Write-Host ""
     Write-Warning "检测到已有配置文件: $CONFIG_FILE"
-    
+
     if (Prompt-YesNo "是否重新配置? (y/N)" "n") {
         Write-Success "跳过配置，直接启动..."
         Start-Gateway
@@ -1003,7 +1015,62 @@ if (Test-Path $CONFIG_FILE) {
     }
 }
 
-# 配置流程
+# 选择配置方式
+Write-Host ""
+Write-Step "选择配置方式"
+Write-Host "请选择配置方式:" -ForegroundColor White
+Write-Host "  1) Web 界面配置 (推荐，避免中文显示问题)" -ForegroundColor Yellow
+Write-Host "  2) 命令行配置 (传统方式)" -ForegroundColor Yellow
+Write-Host ""
+
+$useWebConfig = $false
+$choice = Read-Host "请输入选择 [1/2]"
+
+if ($choice -eq '1' -or [string]::IsNullOrWhiteSpace($choice)) {
+    $useWebConfig = $true
+}
+
+if ($useWebConfig) {
+    # 使用 Web 配置界面
+    Write-Host ""
+    Write-Host "启动 Web 配置服务器..." -ForegroundColor Cyan
+    Write-Host ""
+
+    # 检查并下载 Web 配置脚本
+    $webConfigScript = Join-Path $PSScriptRoot "web-config.js"
+
+    if (-not (Test-Path $webConfigScript)) {
+        $webConfigScript = Join-Path $env:TEMP "openclaw-web-config.js"
+        try {
+            $webUrl = "https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/main/web-config.js"
+            Write-Host "下载 Web 配置脚本..." -ForegroundColor Gray
+            Invoke-WebRequest -Uri $webUrl -OutFile $webConfigScript -UseBasicParsing
+        } catch {
+            Write-Error "下载失败，请手动访问配置页面"
+            exit 1
+        }
+    }
+
+    Write-Host "启动配置服务器..." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  请在浏览器中打开配置页面" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  http://127.0.0.1:18790" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "配置完成后将自动启动 OpenClaw Gateway" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "按 Ctrl+C 可停止配置服务器" -ForegroundColor Gray
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+
+    # 启动 Web 配置服务器
+    & node $webConfigScript
+    exit 0
+}
+
+# 命令行配置流程
 Configure-Model
 Configure-Channels
 Save-Config

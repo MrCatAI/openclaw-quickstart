@@ -38,6 +38,7 @@
     "install.sh",
     "install.ps1",
     "install.cmd",
+    "web-config.js",
     "README.md"
   ],
   "engines": {
