@@ -134,22 +134,28 @@ function exec(cmd, silent = true) {
 // ============================================
 
 const MODEL_PROVIDERS = {
-    // Z.AI (GLM) - OpenAI Format
+    // Z.AI (GLM/Zhipu AI) - Dual Format Support
     zai: {
-        name: 'Z.AI (GLM)',
-        desc: 'GLM-5 / GLM-4.7, OpenAI format',
-        apiTypes: ['openai-completions'],
+        name: 'Z.AI / GLM (Zhipu AI)',
+        desc: 'GLM-5 (744B MoE), OpenAI & Claude format',
+        apiTypes: ['openai-completions', 'anthropic-messages'],
         defaultApiType: 'openai-completions',
         urls: {
-            'Global': 'https://api.z.ai/api/paas/v4',
-            'CN': 'https://open.bigmodel.cn/api/paas/v4',
-            'Coding-Global': 'https://api.z.ai/api/coding/paas/v4',
-            'Coding-CN': 'https://open.bigmodel.cn/api/coding/paas/v4'
+            'openai-completions': {
+                'CN (Recommended)': 'https://open.bigmodel.cn/api/paas/v4',
+                'Global': 'https://api.z.ai/api/paas/v4',
+                'Coding-CN': 'https://open.bigmodel.cn/api/coding/paas/v4',
+                'Coding-Global': 'https://api.z.ai/api/coding/paas/v4'
+            },
+            'anthropic-messages': {
+                'CN': 'https://open.bigmodel.cn/api/anthropic'
+            }
         },
-        models: ['glm-5', 'glm-4.7', 'glm-4.7-flash', 'glm-4.7-flashx'],
+        models: ['glm-5', 'glm-4.7', 'glm-4.7-flash', 'glm-4.5-flash', 'glm-4.5-air'],
         defaultModel: 'glm-5',
         keyUrl: 'https://open.bigmodel.cn/console/apikey',
-        envKey: 'ZAI_API_KEY'
+        envKey: 'ZAI_API_KEY',
+        note: 'GLM models support both OpenAI and Claude formats'
     },
     // MiniMax - Claude Format
     minimax: {
