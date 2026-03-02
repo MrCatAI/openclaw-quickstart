@@ -58,28 +58,39 @@ const PROVIDERS = {
         keyUrl: 'https://console.anthropic.com/settings/keys',
         docUrl: 'https://docs.anthropic.com'
     },
-    // Z.AI (GLM Models) - OpenAI Format
+    // Z.AI (GLM/Zhipu AI) - Dual Format Support
     zai: {
-        name: 'Z.AI',
-        fullName: 'Z.AI GLM Models',
-        desc: 'GLM-5 / GLM-4.7',
-        detail: 'OpenAI compatible - CN & Global',
+        name: 'Z.AI / GLM',
+        fullName: 'Zhipu AI GLM Models',
+        desc: 'GLM-5 (744B MoE) / GLM-4.7',
+        detail: 'OpenAI & Claude format - CN & Global',
         color: '#3B82F6',
         formats: {
             'openai-completions': {
-                name: 'OpenAI Format',
-                url: 'https://api.z.ai/api/paas/v4',
-                models: ['glm-5', 'glm-4.7', 'glm-4.7-flash', 'glm-4.7-flashx'],
+                name: 'OpenAI Format (Recommended)',
+                url: 'https://open.bigmodel.cn/api/paas/v4',
+                models: ['glm-5', 'glm-4.7', 'glm-4.7-flash', 'glm-4.7-flashx', 'glm-4.5-flash'],
                 endpoints: {
+                    'CN (Recommended)': 'https://open.bigmodel.cn/api/paas/v4',
                     'Global': 'https://api.z.ai/api/paas/v4',
-                    'CN': 'https://open.bigmodel.cn/api/paas/v4',
-                    'Coding-Global': 'https://api.z.ai/api/coding/paas/v4',
-                    'Coding-CN': 'https://open.bigmodel.cn/api/coding/paas/v4'
-                }
+                    'Coding-CN': 'https://open.bigmodel.cn/api/coding/paas/v4',
+                    'Coding-Global': 'https://api.z.ai/api/coding/paas/v4'
+                },
+                defaultEndpoint: 'CN (Recommended)'
+            },
+            'anthropic-messages': {
+                name: 'Claude Format',
+                url: 'https://open.bigmodel.cn/api/anthropic',
+                models: ['glm-5', 'glm-4.7', 'glm-4.5-flash', 'glm-4.5-air'],
+                endpoints: {
+                    'CN': 'https://open.bigmodel.cn/api/anthropic'
+                },
+                defaultEndpoint: 'CN'
             }
         },
         keyUrl: 'https://open.bigmodel.cn/console/apikey',
-        docUrl: 'https://open.bigmodel.cn/dev/howuse/anthropic'
+        docUrl: 'https://open.bigmodel.cn/dev/howuse/anthropic',
+        note: 'GLM models support both OpenAI and Claude formats. OpenAI format recommended for better compatibility.'
     },
     // MiniMax - Claude Format Support
     minimax: {
@@ -174,7 +185,7 @@ const PROVIDERS = {
         keyUrl: 'https://dashscope.console.aliyun.com/apiKey',
         docUrl: 'https://help.aliyun.com/zh/model-studio'
     },
-    // StepFun
+    // StepFun - Dual Format Support
     stepfun: {
         name: 'StepFun',
         fullName: 'StepFun Step-3.5',
@@ -183,20 +194,23 @@ const PROVIDERS = {
         color: '#EC4899',
         formats: {
             'anthropic-messages': {
-                name: 'Claude Format',
+                name: 'Claude Format (Recommended)',
                 url: 'https://api.stepfun.ai/anthropic',
-                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k']
+                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k'],
+                defaultEndpoint: 'Default'
             },
             'openai-completions': {
                 name: 'OpenAI Format',
                 url: 'https://api.stepfun.ai/v1',
-                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k']
+                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k'],
+                defaultEndpoint: 'Default'
             }
         },
         keyUrl: 'https://platform.stepfun.com',
-        docUrl: 'https://github.com/stepfun-ai/Step-3.5'
+        docUrl: 'https://github.com/stepfun-ai/Step-3.5',
+        note: 'StepFun supports both formats. Claude format recommended for Claude Code compatibility.'
     },
-    // Volcengine (ByteDance)
+    // Volcengine (ByteDance) - Dual Format
     volcengine: {
         name: 'Volcengine',
         fullName: 'Volcano Engine Ark',
@@ -205,18 +219,21 @@ const PROVIDERS = {
         color: '#F97316',
         formats: {
             'openai-completions': {
-                name: 'Coding Plan',
+                name: 'OpenAI Format (Coding Plan)',
                 url: 'https://ark.cn-beijing.volces.com/api/coding/v3',
-                models: ['doubao-seed-code-latest', 'glm-4.7', 'deepseek-v3']
+                models: ['doubao-seed-code-latest', 'glm-4.7', 'deepseek-v3', 'kimi-k2-thinking'],
+                defaultEndpoint: 'Default'
             },
             'anthropic-messages': {
-                name: 'Claude Format',
+                name: 'Claude Format (Preview)',
                 url: 'https://ark.cn-beijing.volces.com/api/coding',
-                models: ['doubao-seed-code-preview-latest']
+                models: ['doubao-seed-code-preview-latest', 'doubao-seed-code-preview-251028'],
+                defaultEndpoint: 'Default'
             }
         },
         keyUrl: 'https://console.volcengine.com/ark',
-        docUrl: 'https://www.volcengine.com/docs/ark'
+        docUrl: 'https://www.volcengine.com/docs/ark',
+        note: 'Volcengine Coding Plan supports multiple AI models via single subscription.'
     },
     // xAI (Grok)
     xai: {
@@ -639,6 +656,7 @@ input:focus,select:focus{
     margin-bottom:15px
 }
 .format-btn{
+    position:relative;
     padding:10px 20px;
     font-size:20px;
     font-family:inherit;
@@ -652,6 +670,36 @@ input:focus,select:focus{
     background:var(--green);
     border-color:var(--green-dark);
     color:var(--text-light)
+}
+.format-badge{
+    position:absolute;
+    top:-6px;
+    right:-6px;
+    background:#EF4444;
+    color:var(--text-light);
+    font-size:11px;
+    padding:2px 6px;
+    border-radius:8px;
+    font-weight:bold
+}
+.endpoint-select{
+    margin-bottom:15px
+}
+.provider-note{
+    background:#FEF3C7;
+    border:2px solid #F59E0B;
+    padding:12px 16px;
+    margin-bottom:15px;
+    font-size:16px;
+    border-radius:4px
+}
+.provider-note strong{
+    color:#92400E
+}
+.format-info{
+    font-size:14px;
+    color:#666;
+    margin-top:6px
 }
 .footer{
     padding:20px 40px;
@@ -827,7 +875,7 @@ input:focus,select:focus{
         <!-- Page 2: API Config -->
         <div class="page" id="page2">
             <div class="page-title">Configure API Connection</div>
-            <div class="page-subtitle">Enter your API credentials</div>
+            <div class="page-subtitle">Select format and enter credentials</div>
             <div class="info-box">
                 <div style="font-size:24px;margin-bottom:6px" id="providerName">-</div>
                 <div style="font-size:18px" id="providerDesc"></div>
@@ -836,14 +884,20 @@ input:focus,select:focus{
                 <a href="#" target="_blank" id="docLink">Documentation →</a>
             </div>
 
+            <div id="providerNote" class="provider-note" style="display:none"></div>
+
             <div class="form-group full">
                 <label>API Format</label>
+                <div style="font-size:14px;color:#666;margin-bottom:8px">
+                    Some providers support multiple formats. Choose based on your needs.
+                </div>
                 <div class="format-btns" id="formatBtns"></div>
             </div>
 
             <div class="form-group full" id="endpointGroup" style="display:none">
-                <label>Endpoint Region</label>
+                <label>Endpoint</label>
                 <select id="endpointSelect" class="endpoint-select"></select>
+                <div class="format-info" id="endpointInfo"></div>
             </div>
 
             <div class="form-row">
@@ -1080,18 +1134,41 @@ function loadProvider(id){
         document.getElementById('docLink').style.display='none'
     }
 
+    // Show provider note if available
+    const noteBox=document.getElementById('providerNote');
+    if(p.note){
+        noteBox.innerHTML='<strong>Note:</strong> '+p.note;
+        noteBox.style.display='block'
+    }else{
+        noteBox.style.display='none'
+    }
+
     const btns=document.getElementById('formatBtns');
     btns.innerHTML='';
     let first='';
+    let recommendedFirst='';
     Object.entries(p.formats||{}).forEach(([fid,f])=>{
         if(!first)first=fid;
+        // Check if this is the recommended format (has "Recommended" in name)
+        const isRecommended=f.name.includes('Recommended');
+        if(isRecommended&&!recommendedFirst)recommendedFirst=fid;
+
         const btn=document.createElement('button');
         btn.className='format-btn';
-        btn.textContent=f.name;
+
+        // Create button HTML with potential badge
+        let btnHtml='<span>'+f.name.replace(' (Recommended)','')+'</span>';
+        if(isRecommended){
+            btnHtml+='<span class="format-badge">REC</span>';
+        }
+        btn.innerHTML=btnHtml;
+
         btn.onclick=()=>selectFormat(fid,btn);
         btns.appendChild(btn)
     });
-    if(first)selectFormat(first,btns.firstChild)
+    // Use recommended format first if available, otherwise use first format
+    if(recommendedFirst)selectFormat(recommendedFirst,btns.children[Object.keys(p.formats).indexOf(recommendedFirst)]);
+    else if(first)selectFormat(first,btns.firstChild)
 }
 
 function selectFormat(id,btn){
@@ -1105,17 +1182,32 @@ function selectFormat(id,btn){
         // Handle endpoints
         const endpointGroup=document.getElementById('endpointGroup');
         const endpointSelect=document.getElementById('endpointSelect');
+        const endpointInfo=document.getElementById('endpointInfo');
+
         if(f.endpoints){
             endpointGroup.style.display='block';
-            endpointSelect.innerHTML=Object.entries(f.endpoints).map(([name,url])=>
-                \`<option value="\${name}">\${name}</option>\`
+
+            // Get endpoint names sorted with recommended/default first
+            const endpointEntries=Object.entries(f.endpoints);
+            const defaultEndpoint=f.defaultEndpoint||endpointEntries[0][0];
+
+            endpointSelect.innerHTML=endpointEntries.map(([name,url])=>
+                \`<option value="\${name}"\${name===defaultEndpoint?'selected':''}>\${name}</option>\`
             ).join('');
+
+            // Update endpoint info
+            updateEndpointInfo(endpointEntries);
+
             endpointSelect.onchange=()=>{
-                document.getElementById('apiUrl').value=f.endpoints[endpointSelect.value]
+                document.getElementById('apiUrl').value=f.endpoints[endpointSelect.value];
+                updateEndpointInfo(endpointEntries,endpointSelect.value);
             };
-            document.getElementById('apiUrl').value=Object.values(f.endpoints)[0]
+
+            // Set initial URL to default endpoint
+            document.getElementById('apiUrl').value=f.endpoints[defaultEndpoint];
         }else{
             endpointGroup.style.display='none';
+            endpointInfo.textContent='';
             document.getElementById('apiUrl').value=f.url||''
         }
 
@@ -1127,10 +1219,22 @@ function selectFormat(id,btn){
                 opt.value=m;
                 dl.appendChild(opt)
             });
+            document.getElementById('modelId').value=f.models[0];
             document.getElementById('modelId').placeholder='Example: '+f.models[0]
         }else{
             document.getElementById('modelId').placeholder='Enter model ID, e.g. gpt-4o'
         }
+    }
+}
+
+function updateEndpointInfo(endpoints,selectedName){
+    const endpointInfo=document.getElementById('endpointInfo');
+    const name=selectedName||endpoints[0][0];
+    const url=endpoints.find(e=>e[0]===name)?.[1];
+    if(url){
+        // Show short version of URL
+        const shortUrl=url.replace('https://','').replace('http://','').split('/')[0];
+        endpointInfo.textContent='Connecting to: '+shortUrl
     }
 }
 
