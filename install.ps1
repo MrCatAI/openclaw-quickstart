@@ -1,5 +1,4 @@
 # OpenClaw Quickstart Installer
-# Updated: 2025-03-02 (Simplified without ValidateSet)
 #
 # Quick Install:
 #   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.ps1 | iex
@@ -19,19 +18,18 @@ function Write-Color {
     Write-Host $Message -ForegroundColor $Color
 }
 
-function Write-Success { Write-Color "✓ " $args Green }
-function Write-Error { Write-Color "✗ " $args Red }
-function Write-Info { Write-Color "ℹ " $args Cyan }
-function Write-Warning { Write-Color "! " $args Yellow }
+function Write-Success { Write-Color "[OK] " $args Green }
+function Write-Error { Write-Color "[ERROR] " $args Red }
+function Write-Info { Write-Color "[INFO] " $args Cyan }
+function Write-Warning { Write-Color "[WARN] " $args Yellow }
 
 # Banner
 function Show-Banner {
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║                                                          ║" -ForegroundColor Cyan
-    Write-Host "║   🦞  OpenClaw 快速安装器                                  ║" -ForegroundColor Cyan
-    Write-Host "║                                                          ║" -ForegroundColor Cyan
-    Write-Host "╚══════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host "  OpenClaw Quickstart Installer" -ForegroundColor Cyan
+    Write-Host "  https://github.com/MrCatAI/openclaw-quickstart" -ForegroundColor Cyan
+    Write-Host "============================================================" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -47,88 +45,74 @@ function Test-NodeJs {
 
 # Install OpenClaw
 function Install-OpenClaw {
-    Write-Info "正在安装 OpenClaw..."
+    Write-Info "Checking OpenClaw..."
 
-    # 使用 npx 直接运行安装，不全局安装
-    Write-Host "OpenClaw 将通过 npx 方式运行，无需全局安装" -ForegroundColor Cyan
+    Write-Host "OpenClaw runs via npx, no global installation required." -ForegroundColor Cyan
     Write-Host ""
 
-    # 验证 npx 可用
+    # Verify npx is available
     try {
         $null = npx --version
-        Write-Success "npx 可用"
+        Write-Success "npx is available"
     } catch {
-        throw "npm/npx 不可用，请先安装 Node.js"
+        throw "npm/npx not available. Please install Node.js first."
     }
 
     return $true
 }
 
-# Run Configuration Wizard
-function Start-Configuration {
+# Run Web Configuration
+function Start-WebConfiguration {
     Write-Host ""
-    Write-Info "启动配置向导..."
-    Write-Host ""
-
-    # 使用 npx 运行配置工具
-    Write-Host "配置方式:" -ForegroundColor Yellow
-    Write-Host "  1. Web 配置界面 (推荐)" -ForegroundColor Cyan
-    Write-Host "  2. CLI 配置向导" -ForegroundColor Cyan
+    Write-Info "Starting Web Configuration..."
     Write-Host ""
 
-    $choice = Read-Host "请选择 (1/2) [默认:1]"
+    Write-Host "Opening web config at: http://127.0.0.1:18792" -ForegroundColor Cyan
+    Write-Host ""
 
-    if ($choice -eq "2") {
-        # CLI 配置
-        Write-Host "启动 CLI 配置向导..." -ForegroundColor Cyan
-        npx openclaw-quickstart
-    } else {
-        # Web 配置
-        Write-Host "启动 Web 配置界面..." -ForegroundColor Cyan
-        npx openclaw-web-config
-    }
+    npx openclaw-web-config
 }
 
 # Start Gateway
 function Start-Gateway {
     Write-Host ""
-    Write-Info "启动 OpenClaw Gateway..."
+    Write-Info "Starting OpenClaw Gateway..."
 
-    # 检查配置文件
+    # Check config file
     $configPath = "$env:USERPROFILE\.openclaw\openclaw.json"
     if (Test-Path $configPath) {
-        Write-Success "配置文件已存在"
+        Write-Success "Config file exists"
     } else {
-        Write-Warning "配置文件不存在，将使用默认配置"
+        Write-Warning "Config file not found, using default config"
     }
 
-    # 启动 Gateway
-    Write-Host "正在启动..." -ForegroundColor Yellow
+    # Start Gateway
+    Write-Host "Starting..." -ForegroundColor Yellow
     $gatewayCmd = "npx openclaw@latest gateway --allow-unconfigured"
 
-    # 在后台启动
+    # Start in background
     $job = Start-Job -ScriptBlock {
         param($cmd)
         & cmd /c "$cmd > nul 2>&1"
     } -ArgumentList $gatewayCmd
 
-    # 等待启动
+    # Wait for startup
     Start-Sleep -Seconds 5
 
-    # 检查端口
+    # Check port
     try {
         $listener = Get-NetTCPConnection -LocalPort 18789 -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($listener) {
-            Write-Success "Gateway 启动成功！"
+            Write-Success "Gateway started successfully!"
             Write-Host ""
-            Write-Host "访问地址:" -ForegroundColor Green
-            Write-Host "  Web 控制面板:  http://127.0.0.1:18789" -ForegroundColor Cyan
+            Write-Host "Access URLs:" -ForegroundColor Green
+            Write-Host "  Web Control Panel:  http://127.0.0.1:18789" -ForegroundColor Cyan
             Write-Host ""
         } else {
-            Write-Warning "Gateway 可能正在启动中，请稍后访问"
+            Write-Warning "Gateway may be starting, please wait a moment"
         }
     } catch {
-        Write-Warning "无法检测端口状态"
+        Write-Warning "Cannot detect port status"
     }
 }
 
@@ -136,55 +120,52 @@ function Start-Gateway {
 function Main {
     Show-Banner
 
-    Write-Success "检测到系统: Windows"
+    Write-Success "Detected OS: Windows"
     Write-Host ""
 
-    # 检查 Node.js
+    # Check Node.js
     if (-not (Test-NodeJs)) {
-        Write-Error "未找到 Node.js"
+        Write-Error "Node.js not found"
         Write-Host ""
-        Write-Host "请先安装 Node.js:" -ForegroundColor Yellow
-        Write-Host "  方法 1: winget install OpenJS.NodeJS.LTS" -ForegroundColor Cyan
-        Write-Host "  方法 2: https://nodejs.org" -ForegroundColor Cyan
+        Write-Host "Please install Node.js first:" -ForegroundColor Yellow
+        Write-Host "  Method 1: winget install OpenJS.NodeJS.LTS" -ForegroundColor Cyan
+        Write-Host "  Method 2: https://nodejs.org" -ForegroundColor Cyan
         Write-Host ""
         return
     }
 
     $nodeVersion = node --version
-    Write-Success "Node.js 版本: $nodeVersion"
+    Write-Success "Node.js version: $nodeVersion"
     Write-Host ""
 
-    # 安装/检查 OpenClaw
+    # Install/Check OpenClaw
     if (-not (Install-OpenClaw)) {
         return
     }
 
-    # 配置
+    # Web Configuration
     $skipConfig = $env:OPENCLAW_SKIP_CONFIG -eq "1"
     if (-not $skipConfig) {
-        Start-Configuration
+        Start-WebConfiguration
     }
 
-    # 启动
+    # Start Gateway
     $skipStart = $env:OPENCLAW_SKIP_START -eq "1"
     if (-not $skipStart) {
         Start-Gateway
     }
 
     Write-Host ""
-    Write-Host "╔══════════════════════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "║                                                          ║" -ForegroundColor Green
-    Write-Host "║   安装完成！                                               ║" -ForegroundColor Green
-    Write-Host "║                                                          ║" -ForegroundColor Green
-    Write-Host "╚══════════════════════════════════════════════════════════╝" -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "  Installation Complete!" -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "常用命令:" -ForegroundColor Cyan
-    Write-Host "  npx openclaw-quickstart          - 配置向导" -ForegroundColor White
-    Write-Host "  npx openclaw-web-config          - Web 配置" -ForegroundColor White
-    Write-Host "  npx openclaw@latest gateway       - 启动 Gateway" -ForegroundColor White
-    Write-Host "  npx openclaw@latest agent --message '你好'  - 与 AI 对话" -ForegroundColor White
+    Write-Host "Common Commands:" -ForegroundColor Cyan
+    Write-Host "  npx openclaw-web-config              - Web Configuration" -ForegroundColor White
+    Write-Host "  npx openclaw@latest gateway           - Start Gateway" -ForegroundColor White
+    Write-Host "  npx openclaw@latest agent --message 'hi' - Chat with AI" -ForegroundColor White
     Write-Host ""
 }
 
-# 运行主函数
+# Run main function
 Main
