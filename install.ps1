@@ -1,4 +1,5 @@
 # OpenClaw Quickstart Installer
+# Updated: 2025-03-02 (Simplified without ValidateSet)
 #
 # Quick Install:
 #   iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.ps1 | iex
