@@ -1,0 +1,57 @@
+{
+  "name": "openclaw-quickstart",
+  "version": "2.0.0",
+  "description": "一键安装 OpenClaw 并配置国产大模型和聊天渠道 (Telegram/Discord/飞书/WhatsApp/Slack)",
+  "main": "bin/cli.js",
+  "bin": {
+    "openclaw-quickstart": "./bin/cli.js",
+    "openclaw-web-config": "./web-config.js",
+    "openclaw-verify": "./verify.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "web": "node web-config.js",
+    "verify": "node verify.js",
+    "gateway": "node start.js"
+  },
+  "keywords": [
+    "openclaw",
+    "ai",
+    "assistant",
+    "cli",
+    "installer",
+    "快速安装",
+    "telegram",
+    "discord",
+    "feishu",
+    "lark",
+    "gpt-4o",
+    "claude",
+    "deepseek",
+    "kimi",
+    "glm",
+    "qwen",
+    "ollama"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrCatAI/openclaw-quickstart.git"
+  },
+  "files": [
+    "bin/",
+    "verify.js",
+    "web-config.js",
+    "web-config-service.ps1",
+    "install.sh",
+    "install.ps1",
+    "install.cmd",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
