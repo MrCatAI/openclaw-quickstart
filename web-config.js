@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * OpenClaw 配置向导 - 像素风格
- * 支持国产主流大模型 · 渠道配置 · 技能安装
- * 参考: openclaw-source/src/config/
+ * OpenClaw Web Configuration Wizard
+ * Based on: https://github.com/MrCatAI/openclaw-quickstart
+ * Reference: openclaw-source/src/config/
  */
 
 const http = require('http');
@@ -19,98 +19,137 @@ const PORT = 18792;
 process.env.NODE_ENV = 'production';
 
 // ============================================
-// 模型提供商配置 (参考官方源码)
+// Model Providers Configuration
+// Based on: src/commands/auth-choice-options.ts
 // ============================================
 
 const PROVIDERS = {
-    glm: {
-        name: '智谱AI',
-        fullName: '智谱AI GLM',
-        desc: 'GLM-5 (744B MoE)',
-        detail: 'Claude Code 官方兼容',
-        color: '#3B82F6',
+    // OpenAI Official
+    openai: {
+        name: 'OpenAI',
+        fullName: 'OpenAI GPT',
+        desc: 'GPT-4.1 / o3-mini',
+        detail: 'Official OpenAI API',
+        color: '#10A37F',
+        formats: {
+            'openai-completions': {
+                name: 'OpenAI Format',
+                url: 'https://api.openai.com/v1',
+                models: ['gpt-4.1', 'o3-mini', 'gpt-4o', 'chatgpt-4o-latest']
+            }
+        },
+        keyUrl: 'https://platform.openai.com/api-keys',
+        docUrl: 'https://platform.openai.com/docs'
+    },
+    // Anthropic Claude
+    anthropic: {
+        name: 'Anthropic',
+        fullName: 'Anthropic Claude',
+        desc: 'Claude 4.6 Sonnet / Opus',
+        detail: 'Official Anthropic API',
+        color: '#D97757',
         formats: {
             'anthropic-messages': {
-                name: 'Claude 格式',
-                url: 'https://open.bigmodel.cn/api/anthropic',
-                models: ['glm-5', 'glm-4.7', 'glm-4.5-flash', 'glm-4.5-air']
-            },
+                name: 'Claude Format',
+                url: 'https://api.anthropic.com',
+                models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-4-6']
+            }
+        },
+        keyUrl: 'https://console.anthropic.com/settings/keys',
+        docUrl: 'https://docs.anthropic.com'
+    },
+    // Z.AI (GLM Models) - OpenAI Format
+    zai: {
+        name: 'Z.AI',
+        fullName: 'Z.AI GLM Models',
+        desc: 'GLM-5 / GLM-4.7',
+        detail: 'OpenAI compatible - CN & Global',
+        color: '#3B82F6',
+        formats: {
             'openai-completions': {
-                name: 'OpenAI 格式',
-                url: 'https://open.bigmodel.cn/api/paas/v4',
-                models: ['glm-5', 'glm-4.7', 'glm-4.5-flash', 'glm-4.5-air']
+                name: 'OpenAI Format',
+                url: 'https://api.z.ai/api/paas/v4',
+                models: ['glm-5', 'glm-4.7', 'glm-4.7-flash', 'glm-4.7-flashx'],
+                endpoints: {
+                    'Global': 'https://api.z.ai/api/paas/v4',
+                    'CN': 'https://open.bigmodel.cn/api/paas/v4',
+                    'Coding-Global': 'https://api.z.ai/api/coding/paas/v4',
+                    'Coding-CN': 'https://open.bigmodel.cn/api/coding/paas/v4'
+                }
             }
         },
         keyUrl: 'https://open.bigmodel.cn/console/apikey',
         docUrl: 'https://open.bigmodel.cn/dev/howuse/anthropic'
     },
-    kimi: {
+    // MiniMax - Claude Format Support
+    minimax: {
+        name: 'MiniMax',
+        fullName: 'MiniMax M2.5',
+        desc: 'M2.5 (456B)',
+        detail: 'Claude format compatible',
+        color: '#F43F5E',
+        formats: {
+            'anthropic-messages': {
+                name: 'Claude Format',
+                url: 'https://api.minimax.io/anthropic',
+                models: ['MiniMax-M2.5', 'MiniMax-M2.1', 'MiniMax-M2.5-Lightning'],
+                endpoints: {
+                    'Global': 'https://api.minimax.io/anthropic',
+                    'CN': 'https://api.minimaxi.com/anthropic'
+                }
+            }
+        },
+        keyUrl: 'https://api.minimaxi.com',
+        docUrl: 'https://www.minimaxi.com'
+    },
+    // Moonshot (Kimi)
+    moonshot: {
         name: 'Kimi',
-        fullName: '月之暗面 Kimi',
-        desc: 'K2.5 (1T 参数)',
-        detail: 'Claude Code 官方支持',
+        fullName: 'Moonshot AI Kimi',
+        desc: 'K2.5 (1T params)',
+        detail: 'OpenAI format compatible',
         color: '#8B5CF6',
         formats: {
             'openai-completions': {
-                name: 'OpenAI 格式',
-                url: 'https://api.moonshot.cn/v1',
-                models: ['kimi-k2.5', 'kimi-k2-thinking', 'kimi-k2-turbo-preview', 'kimi-k2-0905-preview']
+                name: 'OpenAI Format',
+                url: 'https://api.moonshot.ai/v1',
+                models: ['kimi-k2.5', 'kimi-k2-thinking', 'kimi-k2-turbo-preview'],
+                endpoints: {
+                    'Global': 'https://api.moonshot.ai/v1',
+                    'CN': 'https://api.moonshot.cn/v1'
+                }
             }
         },
         keyUrl: 'https://platform.moonshot.cn/console/api-keys',
         docUrl: 'https://platform.moonshot.cn/docs/intro'
     },
-    stepfun: {
-        name: '阶跃星辰',
-        fullName: '阶跃星辰 StepFun',
-        desc: 'Step-3.5 Flash (196B)',
-        detail: 'Claude Code 官方兼容',
-        color: '#EC4899',
+    // Kimi Coding - Claude Format
+    kimiCoding: {
+        name: 'Kimi Coding',
+        fullName: 'Kimi for Coding',
+        desc: 'K2P5 Coding Model',
+        detail: 'Claude format compatible',
+        color: '#7C3AED',
         formats: {
             'anthropic-messages': {
-                name: 'Claude 格式',
-                url: 'https://api.stepfun.ai/anthropic',
-                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k']
-            },
-            'openai-completions': {
-                name: 'OpenAI 格式',
-                url: 'https://api.stepfun.ai/v1',
-                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k']
+                name: 'Claude Format',
+                url: 'https://api.kimi.com/coding/',
+                models: ['k2p5']
             }
         },
-        keyUrl: 'https://platform.stepfun.com',
-        docUrl: 'https://github.com/stepfun-ai/Step-3.5'
+        keyUrl: 'https://kimi-code.moonshot.cn',
+        docUrl: 'https://kimi-code.moonshot.cn'
     },
-    volcengine: {
-        name: '火山方舟',
-        fullName: '火山方舟 Coding Plan',
-        desc: '聚合多模型订阅',
-        detail: '豆包/GLM/DeepSeek/Kimi',
-        color: '#F97316',
-        formats: {
-            'openai-completions': {
-                name: 'Coding Plan',
-                url: 'https://ark.cn-beijing.volces.com/api/coding/v3',
-                models: ['doubao-seed-code-latest', 'glm-4.7', 'deepseek-v3', 'kimi-k2-thinking']
-            },
-            'anthropic-messages': {
-                name: 'Claude 格式',
-                url: 'https://ark.cn-beijing.volces.com/api/coding',
-                models: ['doubao-seed-code-preview-latest', 'doubao-seed-code-preview-251028']
-            }
-        },
-        keyUrl: 'https://console.volcengine.com/ark',
-        docUrl: 'https://www.volcengine.com/docs/ark'
-    },
+    // DeepSeek
     deepseek: {
         name: 'DeepSeek',
-        fullName: '深度求索 DeepSeek',
+        fullName: 'DeepSeek V3.2',
         desc: 'V3.2 (340B MoE)',
-        detail: 'OpenAI 格式兼容',
+        detail: 'OpenAI format compatible',
         color: '#6B7FD4',
         formats: {
             'openai-completions': {
-                name: 'OpenAI 格式',
+                name: 'OpenAI Format',
                 url: 'https://api.deepseek.com/v1',
                 models: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3']
             }
@@ -118,31 +157,16 @@ const PROVIDERS = {
         keyUrl: 'https://platform.deepseek.com/api_keys',
         docUrl: 'https://platform.deepseek.com/api-docs'
     },
-    bailian: {
-        name: '阿里百炼',
-        fullName: '阿里云百炼 Coding Plan',
-        desc: '聚合多模型订阅',
-        detail: 'GLM/Kimi/MiniMax/Qwen',
-        color: '#FF6B00',
-        formats: {
-            'openai-completions': {
-                name: 'Coding Plan',
-                url: 'https://bailian.console.aliyun.com/v1',
-                models: ['qwen-coder-latest', 'glm-5', 'kimi-k2.5', 'MiniMax-M2.5', 'deepseek-v3']
-            }
-        },
-        keyUrl: 'https://bailian.console.aliyun.com',
-        docUrl: 'https://help.aliyun.com/zh/model-studio'
-    },
+    // Qwen (Alibaba)
     qwen: {
-        name: '通义千问',
-        fullName: '阿里通义千问',
-        desc: 'Qwen3.5 Max',
-        detail: 'OpenAI 格式兼容',
+        name: 'Qwen',
+        fullName: 'Alibaba Qwen',
+        desc: 'Qwen 3.5 Max',
+        detail: 'OpenAI format compatible',
         color: '#10B981',
         formats: {
             'openai-completions': {
-                name: 'OpenAI 格式',
+                name: 'OpenAI Format',
                 url: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
                 models: ['qwen3.5-max', 'qwen3.5-turbo', 'qwen3-max', 'qwq-32b']
             }
@@ -150,36 +174,133 @@ const PROVIDERS = {
         keyUrl: 'https://dashscope.console.aliyun.com/apiKey',
         docUrl: 'https://help.aliyun.com/zh/model-studio'
     },
-    minimax: {
-        name: 'MiniMax',
-        fullName: 'MiniMax',
-        desc: 'M2.5 (456B)',
-        detail: 'Claude 格式兼容',
-        color: '#F43F5E',
+    // StepFun
+    stepfun: {
+        name: 'StepFun',
+        fullName: 'StepFun Step-3.5',
+        desc: 'Step-3.5 Flash (196B)',
+        detail: 'Claude & OpenAI format',
+        color: '#EC4899',
         formats: {
             'anthropic-messages': {
-                name: 'Claude 格式',
-                url: 'https://api.minimaxi.com/anthropic',
-                models: ['MiniMax-M2.5', 'MiniMax-M2.1-cc']
+                name: 'Claude Format',
+                url: 'https://api.stepfun.ai/anthropic',
+                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k']
+            },
+            'openai-completions': {
+                name: 'OpenAI Format',
+                url: 'https://api.stepfun.ai/v1',
+                models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k']
             }
         },
-        keyUrl: 'https://api.minimaxi.com',
-        docUrl: 'https://www.minimaxi.com'
+        keyUrl: 'https://platform.stepfun.com',
+        docUrl: 'https://github.com/stepfun-ai/Step-3.5'
     },
+    // Volcengine (ByteDance)
+    volcengine: {
+        name: 'Volcengine',
+        fullName: 'Volcano Engine Ark',
+        desc: 'Doubao / Multi-model',
+        detail: 'OpenAI & Claude format',
+        color: '#F97316',
+        formats: {
+            'openai-completions': {
+                name: 'Coding Plan',
+                url: 'https://ark.cn-beijing.volces.com/api/coding/v3',
+                models: ['doubao-seed-code-latest', 'glm-4.7', 'deepseek-v3']
+            },
+            'anthropic-messages': {
+                name: 'Claude Format',
+                url: 'https://ark.cn-beijing.volces.com/api/coding',
+                models: ['doubao-seed-code-preview-latest']
+            }
+        },
+        keyUrl: 'https://console.volcengine.com/ark',
+        docUrl: 'https://www.volcengine.com/docs/ark'
+    },
+    // xAI (Grok)
+    xai: {
+        name: 'xAI',
+        fullName: 'xAI Grok',
+        desc: 'Grok-4',
+        detail: 'OpenAI format compatible',
+        color: '#000000',
+        formats: {
+            'openai-completions': {
+                name: 'OpenAI Format',
+                url: 'https://api.x.ai/v1',
+                models: ['grok-4']
+            }
+        },
+        keyUrl: 'https://console.x.ai',
+        docUrl: 'https://docs.x.ai'
+    },
+    // Mistral AI
+    mistral: {
+        name: 'Mistral',
+        fullName: 'Mistral AI',
+        desc: 'Mistral Large',
+        detail: 'OpenAI format compatible',
+        color: '#F45D1F',
+        formats: {
+            'openai-completions': {
+                name: 'OpenAI Format',
+                url: 'https://api.mistral.ai/v1',
+                models: ['mistral-large-latest', 'pixtral-large-latest', 'codestral-latest']
+            }
+        },
+        keyUrl: 'https://console.mistral.ai',
+        docUrl: 'https://docs.mistral.ai'
+    },
+    // OpenRouter
+    openrouter: {
+        name: 'OpenRouter',
+        fullName: 'OpenRouter',
+        desc: '100+ Models Gateway',
+        detail: 'OpenAI format compatible',
+        color: '#6366F1',
+        formats: {
+            'openai-completions': {
+                name: 'OpenAI Format',
+                url: 'https://openrouter.ai/api/v1',
+                models: ['anthropic/claude-sonnet-4', 'openai/gpt-4.1', 'google/gemini-2.5-flash']
+            }
+        },
+        keyUrl: 'https://openrouter.ai/keys',
+        docUrl: 'https://openrouter.ai/docs'
+    },
+    // Google Gemini
+    gemini: {
+        name: 'Gemini',
+        fullName: 'Google Gemini',
+        desc: 'Gemini 2.5 Pro',
+        detail: 'OpenAI format compatible',
+        color: '#4285F4',
+        formats: {
+            'openai-completions': {
+                name: 'OpenAI Format',
+                url: 'https://generativelanguage.googleapis.com/v1beta',
+                models: ['gemini-2.5-flash', 'gemini-2.5-pro']
+            }
+        },
+        keyUrl: 'https://makersuite.google.com/app/apikey',
+        docUrl: 'https://ai.google.dev/gemini-api/docs'
+    },
+    // Custom
     custom: {
-        name: '自定义',
-        fullName: '自定义 / 第三方服务',
-        desc: 'OpenAI / Claude 兼容',
-        detail: '填写自己的 API 地址',
+        name: 'Custom',
+        fullName: 'Custom / Self-hosted',
+        desc: 'Any compatible endpoint',
+        detail: 'OpenAI / Claude compatible',
         color: '#6B7280',
         formats: {
             'openai-completions': {
-                name: 'OpenAI 格式',
+                name: 'OpenAI Format',
                 url: '',
                 models: []
             },
             'anthropic-messages': {
-                name: 'Claude 格式',
+                name: 'Claude Format',
                 url: '',
                 models: []
             }
@@ -190,18 +311,19 @@ const PROVIDERS = {
 };
 
 // ============================================
-// 渠道配置 (参考 src/channels/ 和 src/commands/onboard-channels.ts)
+// Channel Configuration
+// Based on: src/config/zod-schema.channels.ts
 // ============================================
 
 const CHANNELS = {
     telegram: {
         name: 'Telegram',
         icon: '📱',
-        desc: '流行的即时通讯应用',
-        detail: '需要 @BotFather 创建机器人',
+        desc: 'Popular messaging app',
+        detail: 'Create bot via @BotFather',
         color: '#0088CC',
         fields: [
-            { key: 'botToken', label: 'Bot Token', placeholder: '1234567890:ABCdefGHI...', help: '从 @BotFather 获取' }
+            { key: 'botToken', label: 'Bot Token', placeholder: '1234567890:ABCdefGHI...', help: 'Get from @BotFather' }
         ],
         setupUrl: 'https://core.telegram.org/bots/tutorial',
         quickstartScore: 10,
@@ -210,25 +332,25 @@ const CHANNELS = {
     discord: {
         name: 'Discord',
         icon: '🎮',
-        desc: '游戏玩家和开发者社区',
-        detail: '需要创建 Discord 应用',
+        desc: 'Gaming & dev community',
+        detail: 'Create Discord app',
         color: '#5865F2',
         fields: [
-            { key: 'token', label: 'Bot Token', placeholder: 'MTAw...', help: '从 Discord Developer Portal 获取' }
+            { key: 'token', label: 'Bot Token', placeholder: 'MTAw...', help: 'From Discord Developer Portal' }
         ],
         setupUrl: 'https://discord.com/developers/applications',
         quickstartScore: 8,
         dmPolicy: 'pairing'
     },
     feishu: {
-        name: '飞书/Lark',
+        name: 'Feishu/Lark',
         icon: '🪽',
-        desc: '企业协作平台',
-        detail: '需要创建自建应用',
+        desc: 'Enterprise collaboration',
+        detail: 'Create self-built app',
         color: '#3370FF',
         fields: [
-            { key: 'appId', label: 'App ID', placeholder: 'cli_xxx...', help: '从飞书开放平台获取' },
-            { key: 'appSecret', label: 'App Secret', placeholder: '...', help: '从飞书开放平台获取' }
+            { key: 'appId', label: 'App ID', placeholder: 'cli_xxx...', help: 'From Feishu Open Platform' },
+            { key: 'appSecret', label: 'App Secret', placeholder: '...', help: 'From Feishu Open Platform' }
         ],
         setupUrl: 'https://open.feishu.cn/app',
         quickstartScore: 5,
@@ -238,11 +360,11 @@ const CHANNELS = {
     whatsapp: {
         name: 'WhatsApp',
         icon: '💬',
-        desc: '全球最大的即时通讯平台',
-        detail: '需要 WhatsApp Business API',
+        desc: 'Global messaging platform',
+        detail: 'Requires Business API',
         color: '#25D366',
         fields: [
-            { key: 'phoneNumber', label: 'Phone Number', placeholder: '+8613800138000', help: 'WhatsApp Business 号码' }
+            { key: 'phoneNumber', label: 'Phone Number', placeholder: '+8613800138000', help: 'WhatsApp Business number' }
         ],
         setupUrl: 'https://developers.facebook.com/docs/whatsapp',
         quickstartScore: 9,
@@ -251,12 +373,12 @@ const CHANNELS = {
     slack: {
         name: 'Slack',
         icon: '💼',
-        desc: '企业团队协作',
-        detail: '需要创建 Slack App',
+        desc: 'Team collaboration',
+        detail: 'Create Slack App',
         color: '#4A154B',
         fields: [
-            { key: 'botToken', label: 'Bot Token', placeholder: 'xoxb-...', help: '从 Slack App 配置获取' },
-            { key: 'appToken', label: 'App Token', placeholder: 'xapp-...', help: '用于 Socket Mode (可选)' }
+            { key: 'botToken', label: 'Bot Token', placeholder: 'xoxb-...', help: 'From Slack App config' },
+            { key: 'appToken', label: 'App Token', placeholder: 'xapp-...', help: 'For Socket Mode (optional)' }
         ],
         setupUrl: 'https://api.slack.com/apps',
         quickstartScore: 6,
@@ -265,28 +387,28 @@ const CHANNELS = {
 };
 
 // ============================================
-// 技能配置 (参考 skills/ 目录)
+// Skills Configuration
 // ============================================
 
 const SKILLS = [
-    { id: 'weather', name: '天气查询', desc: '获取实时天气信息', emoji: '🌤️', needsKey: false },
-    { id: 'summarize', name: '内容摘要', desc: '自动生成文章/对话摘要', emoji: '📝', needsKey: false },
-    { id: 'voice-call', name: '语音通话', desc: '语音输入输出支持', emoji: '🎤', needsKey: false },
-    { id: 'canvas', name: 'Canvas', desc: '可视化工作空间', emoji: '🎨', needsKey: false },
-    { id: 'github', name: 'GitHub', desc: 'GitHub 操作集成', emoji: '🐙', needsKey: true, keyLabel: 'GitHub Token' },
-    { id: 'notion', name: 'Notion', desc: 'Notion 笔记集成', emoji: '📔', needsKey: true, keyLabel: 'Notion API Key' }
+    { id: 'weather', name: 'Weather', desc: 'Real-time weather info', emoji: '🌤️', needsKey: false },
+    { id: 'summarize', name: 'Summarize', desc: 'Auto article/chat summary', emoji: '📝', needsKey: false },
+    { id: 'voice-call', name: 'Voice', desc: 'Voice input/output support', emoji: '🎤', needsKey: false },
+    { id: 'canvas', name: 'Canvas', desc: 'Visual workspace', emoji: '🎨', needsKey: false },
+    { id: 'github', name: 'GitHub', desc: 'GitHub integration', emoji: '🐙', needsKey: true, keyLabel: 'GitHub Token' },
+    { id: 'notion', name: 'Notion', desc: 'Notion notes integration', emoji: '📔', needsKey: true, keyLabel: 'Notion API Key' }
 ];
 
 // ============================================
-// HTML 界面
+// HTML Interface
 // ============================================
 
 const HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>OpenClaw 配置向导</title>
+<title>OpenClaw Configuration Wizard</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -414,8 +536,9 @@ body{
     gap:12px
 }
 .page-title::before{
-    content:'◆';
-    color:var(--green-dark)
+    content:'>>';
+    color:var(--green-dark);
+    font-weight:bold
 }
 .page-subtitle{
     font-size:20px;
@@ -424,81 +547,76 @@ body{
 }
 .provider-grid{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:20px
+    grid-template-columns:repeat(5,1fr);
+    gap:15px
 }
 .provider-card{
-    padding:25px;
+    padding:20px;
     background:var(--stone-light);
-    border:5px solid var(--stone-dark);
+    border:4px solid var(--stone-dark);
     cursor:pointer;
     transition:all 0.15s;
     position:relative;
     text-align:center;
-    min-height:180px;
+    min-height:140px;
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center
 }
 .provider-card:hover{
-    transform:translate(-4px,-4px);
-    box-shadow:8px 8px 0 rgba(0,0,0,0.3);
+    transform:translate(-3px,-3px);
+    box-shadow:6px 6px 0 rgba(0,0,0,0.3);
     border-color:var(--green)
 }
 .provider-card.selected{
     background:var(--green-light);
     border-color:var(--green-dark);
-    box-shadow:8px 8px 0 rgba(0,0,0,0.3)
+    box-shadow:6px 6px 0 rgba(0,0,0,0.3)
 }
 .provider-card.selected::after{
     content:'✓';
     position:absolute;
-    top:8px;right:8px;
-    width:28px;
-    height:28px;
+    top:6px;right:6px;
+    width:24px;
+    height:24px;
     background:var(--green-dark);
     color:var(--text-light);
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:20px
+    font-size:16px
 }
 .provider-name{
-    font-size:28px;
+    font-size:22px;
     font-weight:bold;
-    margin-bottom:10px
-}
-.provider-desc{
-    font-size:18px;
-    color:#444;
     margin-bottom:6px
 }
-.provider-detail{
+.provider-desc{
     font-size:16px;
-    color:#666
+    color:#444
 }
 .form-row{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:25px;
+    gap:20px;
     margin-bottom:20px
 }
 .form-group{margin-bottom:20px}
 .form-group.full{grid-column:1/-1}
 label{
     display:block;
-    font-size:24px;
-    margin-bottom:10px;
+    font-size:22px;
+    margin-bottom:8px;
     color:var(--text)
 }
 input,select{
     width:100%;
-    padding:14px 18px;
-    font-size:22px;
+    padding:12px 16px;
+    font-size:20px;
     font-family:inherit;
     background:#FFF;
-    border:4px solid var(--stone-dark);
+    border:3px solid var(--stone-dark);
     color:var(--text)
 }
 input:focus,select:focus{
@@ -508,24 +626,24 @@ input:focus,select:focus{
 }
 .info-box{
     background:var(--green-light);
-    border:4px solid var(--green-dark);
-    padding:18px 22px;
-    margin-bottom:25px
+    border:3px solid var(--green-dark);
+    padding:15px 18px;
+    margin-bottom:20px
 }
 .info-box a{color:#2A5A2F;text-decoration:none}
 .info-box a:hover{text-decoration:underline}
 .format-btns{
     display:flex;
-    gap:12px;
+    gap:10px;
     flex-wrap:wrap;
-    margin-bottom:20px
+    margin-bottom:15px
 }
 .format-btn{
-    padding:12px 24px;
-    font-size:22px;
+    padding:10px 20px;
+    font-size:20px;
     font-family:inherit;
     background:var(--stone-light);
-    border:4px solid var(--stone-dark);
+    border:3px solid var(--stone-dark);
     cursor:pointer;
     transition:all 0.15s
 }
@@ -544,12 +662,12 @@ input:focus,select:focus{
     align-items:center
 }
 .btn{
-    padding:14px 45px;
-    font-size:26px;
+    padding:12px 40px;
+    font-size:24px;
     font-family:inherit;
     cursor:pointer;
     background:linear-gradient(180deg,#A0A0A0 0%,#808080 100%);
-    border:4px solid var(--border);
+    border:3px solid var(--border);
     color:var(--text-light);
     text-shadow:2px 2px 0 rgba(0,0,0,0.5);
     transition:all 0.15s
@@ -565,76 +683,76 @@ input:focus,select:focus{
 }
 .error{
     color:#C41E3A;
-    font-size:18px;
-    margin-top:6px
+    font-size:16px;
+    margin-top:4px
 }
 .channel-grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:25px;
-    margin-top:20px
+    gap:20px;
+    margin-top:15px
 }
 .channel-card{
-    padding:40px 25px;
+    padding:30px 20px;
     background:var(--stone-light);
-    border:4px solid var(--stone-dark);
+    border:3px solid var(--stone-dark);
     text-align:center;
     cursor:pointer;
     transition:all 0.15s
 }
 .channel-card:hover{
-    transform:translate(-4px,-4px);
-    box-shadow:6px 6px 0 rgba(0,0,0,0.3);
+    transform:translate(-3px,-3px);
+    box-shadow:5px 5px 0 rgba(0,0,0,0.3);
     border-color:var(--green)
 }
 .channel-card.selected{
     background:var(--green-light);
     border-color:var(--green-dark)
 }
-.channel-icon{font-size:56px;margin-bottom:12px}
-.channel-name{font-size:26px;font-weight:bold}
-.channel-desc{font-size:18px;color:#666;margin-top:8px}
-.channel-fields{margin-top:30px}
+.channel-icon{font-size:48px;margin-bottom:8px}
+.channel-name{font-size:22px;font-weight:bold}
+.channel-desc{font-size:16px;color:#666;margin-top:6px}
+.channel-fields{margin-top:25px}
 .channel-field{
-    margin-bottom:20px;
+    margin-bottom:15px;
     text-align:left
 }
 .channel-field label{
-    font-size:20px;
-    margin-bottom:8px
+    font-size:18px;
+    margin-bottom:6px
 }
 .channel-field input{
-    padding:12px 16px;
-    font-size:20px
+    padding:10px 14px;
+    font-size:18px
 }
 .channel-help{
-    font-size:16px;
+    font-size:14px;
     color:#666;
-    margin-top:6px
+    margin-top:4px
 }
 .skill-list{
     display:grid;
     grid-template-columns:1fr;
-    gap:15px;
-    margin-top:20px
+    gap:12px;
+    margin-top:15px
 }
 .skill-item{
-    padding:20px;
+    padding:15px;
     background:var(--stone-light);
-    border:4px solid var(--stone-dark);
+    border:3px solid var(--stone-dark);
     display:flex;
     align-items:center;
-    gap:15px
+    gap:12px
 }
 .skill-checkbox{
-    width:24px;
-    height:24px;
+    width:22px;
+    height:22px;
     border:3px solid var(--stone-dark);
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:18px
+    font-size:16px
 }
 .skill-checkbox.checked{
     background:var(--green);
@@ -642,57 +760,43 @@ input:focus,select:focus{
     color:var(--text-light)
 }
 .skill-info{flex:1}
-.skill-name{font-size:24px;font-weight:bold}
-.skill-desc{font-size:18px;color:#666}
-.skill-key-input{
-    margin-top:15px;
-    padding:15px;
-    background:#FFF;
-    border:3px solid var(--stone-dark)
-}
-.success{text-align:center;padding:80px 40px}
+.skill-name{font-size:22px;font-weight:bold}
+.skill-desc{font-size:16px;color:#666}
+.success{text-align:center;padding:60px 30px}
 .success-icon{
-    width:120px;
-    height:120px;
-    margin:0 auto 30px;
+    width:100px;
+    height:100px;
+    margin:0 auto 25px;
     background:var(--green);
-    border:6px solid var(--border);
+    border:5px solid var(--border);
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:64px;
+    font-size:56px;
     color:var(--text-light);
-    box-shadow:8px 8px 0 rgba(0,0,0,0.3)
+    box-shadow:6px 6px 0 rgba(0,0,0,0.3)
 }
 .success-links{
-    margin-top:40px;
+    margin-top:30px;
     display:flex;
     flex-direction:column;
-    gap:15px
+    gap:12px
 }
 .success-link{
     display:block;
-    padding:15px 30px;
+    padding:12px 25px;
     background:var(--stone-light);
-    border:4px solid var(--stone-dark);
+    border:3px solid var(--stone-dark);
     color:var(--text);
     text-decoration:none;
-    font-size:22px
+    font-size:20px
 }
 .success-link:hover{
     border-color:var(--green);
     background:var(--green-light)
 }
-@media(min-width:2000px){
-    .provider-grid{grid-template-columns:repeat(5,1fr)}
-}
-@media(max-width:1400px){
-    .provider-grid{grid-template-columns:repeat(3,1fr)}
-}
-@media(max-width:900px){
-    .provider-grid{grid-template-columns:repeat(2,1fr)}
-    .channel-grid{grid-template-columns:repeat(2,1fr)}
-    .form-row{grid-template-columns:1fr}
+.endpoint-select{
+    margin-bottom:15px
 }
 </style>
 </head>
@@ -701,8 +805,8 @@ input:focus,select:focus{
     <div class="header">
         <div class="logo">🦞</div>
         <div class="title-box">
-            <h1>OPENCLAW 配置向导</h1>
-            <p>国产大模型 · 渠道配置 · 技能安装</p>
+            <h1>OPENCLAW CONFIG WIZARD</h1>
+            <p>AI Models · Channels · Skills</p>
         </div>
     </div>
     <div class="progress">
@@ -713,97 +817,102 @@ input:focus,select:focus{
     </div>
 
     <div class="content">
-        <!-- 页面1: 选择厂商 -->
+        <!-- Page 1: Select Provider -->
         <div class="page active" id="page1">
-            <div class="page-title">选择 AI 服务商</div>
-            <div class="page-subtitle">支持 Claude Code 兼容接口的国产主流大模型</div>
+            <div class="page-title">Select AI Provider</div>
+            <div class="page-subtitle">Choose your AI model provider</div>
             <div class="provider-grid" id="providerGrid"></div>
         </div>
 
-        <!-- 页面2: API 配置 -->
+        <!-- Page 2: API Config -->
         <div class="page" id="page2">
-            <div class="page-title">配置 API 连接</div>
-            <div class="page-subtitle">填写 API 信息，支持 Claude Code 兼容接口</div>
+            <div class="page-title">Configure API Connection</div>
+            <div class="page-subtitle">Enter your API credentials</div>
             <div class="info-box">
-                <div style="font-size:26px;margin-bottom:8px" id="providerName">-</div>
-                <div style="font-size:20px" id="providerDesc"></div>
-                <a href="#" target="_blank" id="keyLink">获取 API Key →</a>
-                <span style="margin:0 10px;color:#666">|</span>
-                <a href="#" target="_blank" id="docLink">查看文档 →</a>
+                <div style="font-size:24px;margin-bottom:6px" id="providerName">-</div>
+                <div style="font-size:18px" id="providerDesc"></div>
+                <a href="#" target="_blank" id="keyLink">Get API Key →</a>
+                <span style="margin:0 8px;color:#666">|</span>
+                <a href="#" target="_blank" id="docLink">Documentation →</a>
             </div>
 
             <div class="form-group full">
-                <label>API 格式</label>
+                <label>API Format</label>
                 <div class="format-btns" id="formatBtns"></div>
+            </div>
+
+            <div class="form-group full" id="endpointGroup" style="display:none">
+                <label>Endpoint Region</label>
+                <select id="endpointSelect" class="endpoint-select"></select>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>API 地址</label>
-                    <input type="text" id="apiUrl" placeholder="自动填充，可修改">
+                    <label>API URL</label>
+                    <input type="text" id="apiUrl" placeholder="Auto-filled, editable">
                     <div class="error" id="urlError"></div>
                 </div>
                 <div class="form-group">
                     <label>API Key</label>
-                    <input type="password" id="apiKey" placeholder="粘贴 API Key">
+                    <input type="password" id="apiKey" placeholder="Paste your API key">
                     <div class="error" id="keyError"></div>
                 </div>
             </div>
 
             <div class="form-group full">
-                <label>模型 ID <span style="font-size:18px;color:#666">(输入或从列表选择)</span></label>
-                <input type="text" id="modelId" list="modelList" placeholder="输入模型 ID，或点击选择推荐模型" autocomplete="off">
+                <label>Model ID</label>
+                <input type="text" id="modelId" list="modelList" placeholder="Select or enter model ID">
                 <datalist id="modelList"></datalist>
                 <div class="error" id="modelError"></div>
             </div>
         </div>
 
-        <!-- 页面3: 渠道配置 -->
+        <!-- Page 3: Channel Config -->
         <div class="page" id="page3">
-            <div class="page-title">配置聊天渠道 (可选)</div>
-            <div class="page-subtitle">让 OpenClaw 在您常用的聊天平台工作</div>
+            <div class="page-title">Configure Channels (Optional)</div>
+            <div class="page-subtitle">Add chat platforms for OpenClaw</div>
 
             <div class="info-box">
-                <div style="font-size:18px">💡 提示: 您可以稍后通过 <code>openclaw channels add</code> 添加更多渠道</div>
+                <div style="font-size:16px">Tip: You can add channels later with <code>openclaw channels add</code></div>
             </div>
 
             <div class="channel-grid" id="channelGrid"></div>
 
             <div id="channelFields" style="display:none">
-                <div class="page-title" style="font-size:28px;margin-top:30px" id="channelConfigTitle">配置渠道</div>
+                <div class="page-title" style="font-size:26px;margin-top:25px" id="channelConfigTitle">Configure Channel</div>
                 <div id="channelFieldsContainer"></div>
             </div>
         </div>
 
-        <!-- 页面4: 技能配置 -->
+        <!-- Page 4: Skills -->
         <div class="page" id="page4">
-            <div class="page-title">技能安装 (可选)</div>
-            <div class="page-subtitle">选择要安装的扩展技能</div>
+            <div class="page-title">Install Skills (Optional)</div>
+            <div class="page-subtitle">Select optional extensions</div>
 
             <div class="info-box">
-                <div style="font-size:18px">💡 技能为 OpenClaw 添加额外功能，如语音合成、天气查询等</div>
+                <div style="font-size:16px">Skills add extra capabilities like weather, voice, etc.</div>
             </div>
 
             <div class="skill-list" id="skillList"></div>
         </div>
 
-        <!-- 页面5: 完成 -->
+        <!-- Page 5: Success -->
         <div class="page" id="page5">
             <div class="success">
                 <div class="success-icon">✓</div>
-                <div class="page-title" style="justify-content:center;font-size:42px">配置完成！</div>
-                <div class="page-subtitle">OpenClaw 正在启动...</div>
+                <div class="page-title" style="justify-content:center;font-size:38px">Configuration Complete!</div>
+                <div class="page-subtitle">OpenClaw is starting...</div>
                 <div class="success-links">
-                    <a href="http://127.0.0.1:18789" target="_blank" class="success-link">🌐 打开 Web 控制面板</a>
-                    <a href="#" onclick="copyCommands()" class="success-link">📋 复制常用命令</a>
+                    <a href="http://127.0.0.1:18789" target="_blank" class="success-link">🌐 Open Web Dashboard</a>
+                    <a href="#" onclick="copyCommands()" class="success-link">📋 Copy Commands</a>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="footer" id="footer">
-        <button class="btn" id="btnBack" style="visibility:hidden">← 上一步</button>
-        <button class="btn btn-primary" id="btnNext">下一步 →</button>
+        <button class="btn" id="btnBack" style="visibility:hidden">← Back</button>
+        <button class="btn btn-primary" id="btnNext">Next →</button>
     </div>
 </div>
 
@@ -811,15 +920,14 @@ input:focus,select:focus{
 const PROVIDERS=${JSON.stringify(PROVIDERS)};
 const CHANNELS=${JSON.stringify(CHANNELS)};
 const SKILLS=[
-    {id:'weather',name:'天气查询',desc:'获取实时天气信息',emoji:'🌤️',needsKey:false},
-    {id:'summarize',name:'内容摘要',desc:'自动生成文章/对话摘要',emoji:'📝',needsKey:false},
-    {id:'voice-call',name:'语音通话',desc:'语音输入输出支持',emoji:'🎤',needsKey:false},
-    {id:'canvas',name:'Canvas',desc:'可视化工作空间',emoji:'🎨',needsKey:false}
+    {id:'weather',name:'Weather',desc:'Real-time weather info',emoji:'🌤️',needsKey:false},
+    {id:'summarize',name:'Summarize',desc:'Auto content summary',emoji:'📝',needsKey:false},
+    {id:'voice-call',name:'Voice',desc:'Voice input/output',emoji:'🎤',needsKey:false},
+    {id:'canvas',name:'Canvas',desc:'Visual workspace',emoji:'🎨',needsKey:false}
 ];
 
 let currentPage=1,selectedProvider='',selectedFormat='',selectedChannels=[],selectedSkills=[],skillKeys={};
 
-// 初始化
 function init(){
     renderProviders();
     renderChannels();
@@ -833,7 +941,6 @@ function renderProviders(){
         <div class="provider-card" data-provider="\${id}">
             <div class="provider-name">\${p.name}</div>
             <div class="provider-desc">\${p.desc}</div>
-            <div class="provider-detail">\${p.detail}</div>
         </div>
     \`).join('');
     document.querySelectorAll('.provider-card').forEach(card=>{
@@ -881,13 +988,13 @@ function renderChannelFields(){
     }
 
     container.style.display='block';
-    title.textContent=\`配置 \${selectedChannels.map(id=>CHANNELS[id].name).join(' + ')}\`;
+    title.textContent=\`Configure \${selectedChannels.map(id=>CHANNELS[id].name).join(' + ')}\`;
 
     fieldsContainer.innerHTML=selectedChannels.map(id=>{
         const ch=CHANNELS[id];
         return \`
-            <div style="margin-bottom:25px">
-                <div style="font-size:24px;margin-bottom:15px;color:var(--green-dark)">
+            <div style="margin-bottom:20px">
+                <div style="font-size:22px;margin-bottom:12px;color:var(--green-dark)">
                     \${ch.icon} \${ch.name}
                 </div>
                 \${ch.fields.map(f=>\`
@@ -951,8 +1058,8 @@ function showPage(n){
     const back=document.getElementById('btnBack');
     const next=document.getElementById('btnNext');
     back.style.visibility=n>1?'visible':'hidden';
-    if(n===4)next.textContent='保存配置';
-    else next.textContent='下一步 →'
+    if(n===4)next.textContent='Save Config';
+    else next.textContent='Next →'
 }
 
 function loadProvider(id){
@@ -995,7 +1102,23 @@ function selectFormat(id,btn){
     const p=PROVIDERS[selectedProvider];
     const f=p?.formats?.[id];
     if(f){
-        document.getElementById('apiUrl').value=f.url||'';
+        // Handle endpoints
+        const endpointGroup=document.getElementById('endpointGroup');
+        const endpointSelect=document.getElementById('endpointSelect');
+        if(f.endpoints){
+            endpointGroup.style.display='block';
+            endpointSelect.innerHTML=Object.entries(f.endpoints).map(([name,url])=>
+                \`<option value="\${name}">\${name}</option>\`
+            ).join('');
+            endpointSelect.onchange=()=>{
+                document.getElementById('apiUrl').value=f.endpoints[endpointSelect.value]
+            };
+            document.getElementById('apiUrl').value=Object.values(f.endpoints)[0]
+        }else{
+            endpointGroup.style.display='none';
+            document.getElementById('apiUrl').value=f.url||''
+        }
+
         const dl=document.getElementById('modelList');
         dl.innerHTML='';
         if(f.models?.length){
@@ -1004,9 +1127,9 @@ function selectFormat(id,btn){
                 opt.value=m;
                 dl.appendChild(opt)
             });
-            document.getElementById('modelId').placeholder='例如: '+f.models[0]
+            document.getElementById('modelId').placeholder='Example: '+f.models[0]
         }else{
-            document.getElementById('modelId').placeholder='输入模型 ID，如 gpt-4o'
+            document.getElementById('modelId').placeholder='Enter model ID, e.g. gpt-4o'
         }
     }
 }
@@ -1020,9 +1143,9 @@ function validateForm(){
     const key=document.getElementById('apiKey').value.trim();
     const model=document.getElementById('modelId').value.trim();
 
-    if(!url){document.getElementById('urlError').textContent='! 请输入 API 地址';return false}
-    if(!key){document.getElementById('keyError').textContent='! 请输入 API Key';return false}
-    if(!model){document.getElementById('modelError').textContent='! 请选择或输入模型 ID';return false}
+    if(!url){document.getElementById('urlError').textContent='! Enter API URL';return false}
+    if(!key){document.getElementById('keyError').textContent='! Enter API Key';return false}
+    if(!model){document.getElementById('modelError').textContent='! Enter or select Model ID';return false}
     return true
 }
 
@@ -1031,7 +1154,6 @@ function generateToken(){
 }
 
 function saveConfig(){
-    // 收集渠道配置
     const channels={};
     document.querySelectorAll('.channel-input').forEach(input=>{
         const ch=input.dataset.channel;
@@ -1048,7 +1170,7 @@ function saveConfig(){
         meta:{lastTouchedVersion:'2026.3.1',lastTouchedAt:new Date().toISOString()},
         models:{mode:'merge',providers:{}},
         agents:{defaults:{
-            model:{primary:(selectedProvider||'glm')+'/'+document.getElementById('modelId').value.trim()},
+            model:{primary:(selectedProvider||'zai')+'/'+document.getElementById('modelId').value.trim()},
             workspace:'~/.openclaw/workspace',
             compaction:{mode:'safeguard'},
             maxConcurrent:4
@@ -1066,15 +1188,15 @@ function saveConfig(){
         }
     };
 
-    // 模型配置
-    cfg.models.providers[selectedProvider||'glm']={
+    // Provider config
+    cfg.models.providers[selectedProvider||'zai']={
         baseUrl:document.getElementById('apiUrl').value.trim(),
         apiKey:document.getElementById('apiKey').value.trim(),
         api:selectedFormat,
         models:[{
             id:document.getElementById('modelId').value.trim(),
             name:document.getElementById('modelId').value.trim(),
-            reasoning:false,
+            reasoning:selectedProvider==='zai'||selectedProvider==='minimax',
             input:['text'],
             cost:{input:0,output:0,cacheRead:0,cacheWrite:0},
             contextWindow:128000,
@@ -1082,7 +1204,7 @@ function saveConfig(){
         }]
     };
 
-    // 渠道配置
+    // Channel config
     Object.entries(channels).forEach(([id,config])=>{
         const ch=CHANNELS[id];
         if(ch.pluginName){
@@ -1112,7 +1234,7 @@ function saveConfig(){
         }
     });
 
-    // 技能配置
+    // Skills config
     selectedSkills.forEach(skillId=>{
         cfg.skills.entries[skillId]={enabled:true}
     });
@@ -1127,31 +1249,31 @@ function saveConfig(){
     }).then(r=>r.json()).then(r=>{
         if(!r.success)throw new Error(r.error)
     }).catch(e=>{
-        alert('保存失败: '+e.message);
+        alert('Save failed: '+e.message);
         document.getElementById('footer').style.display='flex';
         showPage(4)
     })
 }
 
 function copyCommands(){
-    const cmds=\`常用 OpenClaw 命令:
+    const cmds=\`OpenClaw Common Commands:
 
-# 查看服务状态
+# Check status
 openclaw gateway status
 
-# 与 AI 对话
-openclaw agent --message "你好"
+# Chat with AI
+openclaw agent --message "hi"
 
-# 查看渠道状态
+# Channel status
 openclaw channels status
 
-# 批准配对请求
-openclaw pairing approve <渠道> <代码>
+# Approve pairing
+openclaw pairing approve <channel> <code>
 
-# 打开 Web 界面
+# Open dashboard
 openclaw dashboard
 \`;
-    navigator.clipboard.writeText(cmds).then(()=>alert('命令已复制到剪贴板！'))
+    navigator.clipboard.writeText(cmds).then(()=>alert('Commands copied!'))
 }
 
 init();
@@ -1160,7 +1282,7 @@ init();
 </html>`;
 
 // ============================================
-// 工具函数
+// Utility Functions
 // ============================================
 
 function ensureConfigDir(){
@@ -1177,10 +1299,7 @@ function saveConfig(config){
 
 function startGateway(){
     try{
-        // 先停止现有的 gateway
         try{execSync('openclaw gateway stop',{encoding:'utf8',stdio:'ignore',timeout:5000})}catch(e){}
-
-        // 启动 gateway
         const proc=spawn('openclaw',['gateway'],{
             detached:true,
             stdio:'ignore',
@@ -1203,7 +1322,7 @@ function checkOpenClaw(){
 }
 
 // ============================================
-// HTTP 服务器
+// HTTP Server
 // ============================================
 
 const server=http.createServer((req,res)=>{
@@ -1217,17 +1336,13 @@ const server=http.createServer((req,res)=>{
             try{
                 const cfg=JSON.parse(body);
                 saveConfig(cfg);
-
-                // 延迟启动 gateway
                 setTimeout(()=>{
                     startGateway();
-                    // 保存完成标记
                     fs.writeFileSync(
                         path.join(CONFIG_DIR,'pixel-config-done'),
                         JSON.stringify({timestamp:Date.now(),config:cfg})
                     );
                 },1000);
-
                 res.writeHead(200,{'Content-Type':'application/json;charset=utf-8'});
                 res.end(JSON.stringify({success:true}))
             }catch(e){
@@ -1236,7 +1351,6 @@ const server=http.createServer((req,res)=>{
             }
         })
     }else if(req.url==='/api/check'){
-        // 检查 OpenClaw 是否已安装
         const version=checkOpenClaw();
         const hasConfig=fs.existsSync(CONFIG_FILE);
         res.writeHead(200,{'Content-Type':'application/json;charset=utf-8'});
@@ -1250,16 +1364,15 @@ const server=http.createServer((req,res)=>{
 server.listen(PORT,'127.0.0.1',()=>{
     const version=checkOpenClaw();
     console.log('\n╔═══════════════════════════════════════╗');
-    console.log('║   OpenClaw 配置向导                     ║');
+    console.log('║   OpenClaw Web Config Wizard        ║');
     console.log('╠═══════════════════════════════════════╣');
     console.log('║                                       ║');
-    console.log(version?`║   OpenClaw 已安装: ${version.padEnd(18)}║`:'║   OpenClaw 未安装                      ║');
+    console.log(version?`║   OpenClaw: ${version.padEnd(20)}║`:'║   OpenClaw: Not installed             ║');
     console.log('║                                       ║');
-    console.log('║  访问: http://127.0.0.1:'+PORT+'          ║');
+    console.log('║  Access: http://127.0.0.1:'+PORT+'          ║');
     console.log('║                                       ║');
     console.log('╚═══════════════════════════════════════╝\n');
 
-    // 自动打开浏览器
     try{
         spawn('cmd',['/c','start',`http://127.0.0.1:${PORT}`],{detached:true}).unref()
     }catch(e){}

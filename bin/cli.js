@@ -30,11 +30,11 @@ const colors = {
 
 // 配置存储
 const configState = {
-    provider: 'glm',
-    apiType: 'anthropic-messages',
+    provider: 'zai',
+    apiType: 'openai-completions',
     baseUrl: '',
     apiKey: '',
-    modelId: 'glm-4.7',
+    modelId: 'glm-5',
     channels: {},
     skills: {}
 };
@@ -129,132 +129,200 @@ function exec(cmd, silent = true) {
 }
 
 // ============================================
-// 模型提供商配置 (参考官方源码)
+// 模型提供商配置
+// 参考: openclaw-source/src/commands/auth-choice-options.ts
 // ============================================
 
 const MODEL_PROVIDERS = {
-    glm: {
-        name: '智谱AI GLM',
-        desc: 'GLM-5 (744B MoE), Claude 官方兼容',
-        apiTypes: ['anthropic-messages', 'openai-completions'],
-        defaultApiType: 'anthropic-messages',
-        urls: {
-            'anthropic-messages': 'https://open.bigmodel.cn/api/anthropic',
-            'openai-completions': 'https://open.bigmodel.cn/api/paas/v4'
-        },
-        models: ['glm-5', 'glm-4.7', 'glm-4.5-flash'],
-        defaultModel: 'glm-4.7',
-        keyUrl: 'https://open.bigmodel.cn/console/apikey'
-    },
-    kimi: {
-        name: 'Kimi (月之暗面)',
-        desc: 'K2.5 (1T 参数), Claude 官方支持',
+    // Z.AI (GLM) - OpenAI Format
+    zai: {
+        name: 'Z.AI (GLM)',
+        desc: 'GLM-5 / GLM-4.7, OpenAI format',
         apiTypes: ['openai-completions'],
         defaultApiType: 'openai-completions',
         urls: {
-            'openai-completions': 'https://api.moonshot.cn/v1'
+            'Global': 'https://api.z.ai/api/paas/v4',
+            'CN': 'https://open.bigmodel.cn/api/paas/v4',
+            'Coding-Global': 'https://api.z.ai/api/coding/paas/v4',
+            'Coding-CN': 'https://open.bigmodel.cn/api/coding/paas/v4'
+        },
+        models: ['glm-5', 'glm-4.7', 'glm-4.7-flash', 'glm-4.7-flashx'],
+        defaultModel: 'glm-5',
+        keyUrl: 'https://open.bigmodel.cn/console/apikey',
+        envKey: 'ZAI_API_KEY'
+    },
+    // MiniMax - Claude Format
+    minimax: {
+        name: 'MiniMax',
+        desc: 'M2.5 (456B), Claude format',
+        apiTypes: ['anthropic-messages'],
+        defaultApiType: 'anthropic-messages',
+        urls: {
+            'Global': 'https://api.minimax.io/anthropic',
+            'CN': 'https://api.minimaxi.com/anthropic'
+        },
+        models: ['MiniMax-M2.5', 'MiniMax-M2.1', 'MiniMax-M2.5-Lightning'],
+        defaultModel: 'MiniMax-M2.5',
+        keyUrl: 'https://api.minimaxi.com'
+    },
+    // Moonshot (Kimi) - OpenAI Format
+    moonshot: {
+        name: 'Kimi (Moonshot)',
+        desc: 'K2.5 (1T params), OpenAI format',
+        apiTypes: ['openai-completions'],
+        defaultApiType: 'openai-completions',
+        urls: {
+            'Global': 'https://api.moonshot.ai/v1',
+            'CN': 'https://api.moonshot.cn/v1'
         },
         models: ['kimi-k2.5', 'kimi-k2-thinking', 'kimi-k2-turbo-preview'],
         defaultModel: 'kimi-k2.5',
         keyUrl: 'https://platform.moonshot.cn/console/api-keys'
     },
+    // Kimi Coding - Claude Format
+    kimiCoding: {
+        name: 'Kimi Coding',
+        desc: 'K2P5, Claude format',
+        apiTypes: ['anthropic-messages'],
+        defaultApiType: 'anthropic-messages',
+        urls: {
+            'Default': 'https://api.kimi.com/coding/'
+        },
+        models: ['k2p5'],
+        defaultModel: 'k2p5',
+        keyUrl: 'https://kimi-code.moonshot.cn'
+    },
+    // DeepSeek - OpenAI Format
+    deepseek: {
+        name: 'DeepSeek',
+        desc: 'V3.2 (340B MoE), High value',
+        apiTypes: ['openai-completions'],
+        defaultApiType: 'openai-completions',
+        urls: {
+            'Default': 'https://api.deepseek.com/v1'
+        },
+        models: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3'],
+        defaultModel: 'deepseek-chat',
+        keyUrl: 'https://platform.deepseek.com/api_keys'
+    },
+    // Qwen - OpenAI Format
+    qwen: {
+        name: 'Qwen (Alibaba)',
+        desc: 'Qwen 3.5 Max, OpenAI format',
+        apiTypes: ['openai-completions'],
+        defaultApiType: 'openai-completions',
+        urls: {
+            'Default': 'https://dashscope.aliyuncs.com/compatible-mode/v1'
+        },
+        models: ['qwen3.5-max', 'qwen3.5-turbo', 'qwen3-max', 'qwq-32b'],
+        defaultModel: 'qwen3.5-max',
+        keyUrl: 'https://dashscope.console.aliyun.com/apiKey'
+    },
+    // StepFun - Both Formats
     stepfun: {
-        name: '阶跃星辰 StepFun',
-        desc: 'Step-3.5 Flash (196B), Claude 兼容',
+        name: 'StepFun',
+        desc: 'Step-3.5 Flash (196B), Both formats',
         apiTypes: ['anthropic-messages', 'openai-completions'],
         defaultApiType: 'anthropic-messages',
         urls: {
             'anthropic-messages': 'https://api.stepfun.ai/anthropic',
             'openai-completions': 'https://api.stepfun.ai/v1'
         },
-        models: ['step-3.5-flash', 'step-3.5-medium'],
+        models: ['step-3.5-flash', 'step-3.5-medium', 'step-2-16k'],
         defaultModel: 'step-3.5-flash',
         keyUrl: 'https://platform.stepfun.com'
     },
+    // Volcengine
     volcengine: {
-        name: '火山方舟 Coding Plan',
-        desc: '聚合多模型订阅 (¥40/月)',
+        name: 'Volcengine (ByteDance)',
+        desc: 'Doubao / Multi-model',
         apiTypes: ['openai-completions', 'anthropic-messages'],
         defaultApiType: 'openai-completions',
         urls: {
-            'openai-completions': 'https://ark.cn-beijing.volces.com/api/coding/v3',
-            'anthropic-messages': 'https://ark.cn-beijing.volces.com/api/coding'
+            'Coding Plan': 'https://ark.cn-beijing.volces.com/api/coding/v3',
+            'Claude Format': 'https://ark.cn-beijing.volces.com/api/coding'
         },
-        models: ['doubao-seed-code-latest', 'glm-4.7', 'deepseek-v3', 'kimi-k2-thinking'],
+        models: ['doubao-seed-code-latest', 'glm-4.7', 'deepseek-v3'],
         defaultModel: 'doubao-seed-code-latest',
         keyUrl: 'https://console.volcengine.com/ark'
     },
-    deepseek: {
-        name: 'DeepSeek',
-        desc: 'V3.2 (340B MoE), 高性价比',
+    // xAI (Grok)
+    xai: {
+        name: 'xAI (Grok)',
+        desc: 'Grok-4, OpenAI format',
         apiTypes: ['openai-completions'],
         defaultApiType: 'openai-completions',
         urls: {
-            'openai-completions': 'https://api.deepseek.com/v1'
+            'Default': 'https://api.x.ai/v1'
         },
-        models: ['deepseek-chat', 'deepseek-reasoner'],
-        defaultModel: 'deepseek-chat',
-        keyUrl: 'https://platform.deepseek.com/api_keys'
+        models: ['grok-4'],
+        defaultModel: 'grok-4',
+        keyUrl: 'https://console.x.ai'
     },
-    qwen: {
-        name: '通义千问',
-        desc: 'Qwen3.5 Max, OpenAI 兼容',
+    // Mistral AI
+    mistral: {
+        name: 'Mistral AI',
+        desc: 'Mistral Large, OpenAI format',
         apiTypes: ['openai-completions'],
         defaultApiType: 'openai-completions',
         urls: {
-            'openai-completions': 'https://dashscope.aliyuncs.com/compatible-mode/v1'
+            'Default': 'https://api.mistral.ai/v1'
         },
-        models: ['qwen3.5-max', 'qwen3.5-turbo', 'qwq-32b'],
-        defaultModel: 'qwen3.5-max',
-        keyUrl: 'https://dashscope.console.aliyun.com/apiKey'
+        models: ['mistral-large-latest', 'pixtral-large-latest', 'codestral-latest'],
+        defaultModel: 'mistral-large-latest',
+        keyUrl: 'https://console.mistral.ai'
     },
-    minimax: {
-        name: 'MiniMax',
-        desc: 'M2.5 (456B), Claude 格式兼容',
-        apiTypes: ['anthropic-messages'],
-        defaultApiType: 'anthropic-messages',
+    // OpenRouter
+    openrouter: {
+        name: 'OpenRouter',
+        desc: '100+ Models Gateway',
+        apiTypes: ['openai-completions'],
+        defaultApiType: 'openai-completions',
         urls: {
-            'anthropic-messages': 'https://api.minimaxi.com/anthropic'
+            'Default': 'https://openrouter.ai/api/v1'
         },
-        models: ['MiniMax-M2.5', 'MiniMax-M2.1-cc'],
-        defaultModel: 'MiniMax-M2.5',
-        keyUrl: 'https://api.minimaxi.com'
+        models: ['anthropic/claude-sonnet-4', 'openai/gpt-4.1', 'google/gemini-2.5-flash'],
+        defaultModel: 'anthropic/claude-sonnet-4',
+        keyUrl: 'https://openrouter.ai/keys'
     },
+    // OpenAI Official
     openai: {
         name: 'OpenAI',
-        desc: 'GPT-5.2, GPT-4.1',
+        desc: 'GPT-4.1 / o3-mini',
         apiTypes: ['openai-completions'],
         defaultApiType: 'openai-completions',
         urls: {
-            'openai-completions': 'https://api.openai.com/v1'
+            'Default': 'https://api.openai.com/v1'
         },
-        models: ['gpt-5.2', 'gpt-4.1', 'o1'],
+        models: ['gpt-4.1', 'o3-mini', 'gpt-4o', 'chatgpt-4o-latest'],
         defaultModel: 'gpt-4.1',
         keyUrl: 'https://platform.openai.com/api-keys'
     },
+    // Anthropic Claude
     anthropic: {
         name: 'Anthropic Claude',
-        desc: 'Claude Sonnet 4.6, Opus 4.5',
+        desc: 'Claude 4.6 Sonnet / Opus',
         apiTypes: ['anthropic-messages'],
         defaultApiType: 'anthropic-messages',
         urls: {
-            'anthropic-messages': 'https://api.anthropic.com'
+            'Default': 'https://api.anthropic.com'
         },
-        models: ['claude-sonnet-4-6', 'claude-opus-4-5', 'claude-4-haiku'],
+        models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-4-6'],
         defaultModel: 'claude-sonnet-4-6',
-        keyUrl: 'https://console.anthropic.com'
+        keyUrl: 'https://console.anthropic.com/settings/keys'
     },
-    ollama: {
-        name: 'Ollama (本地)',
-        desc: '本地运行 Llama, Qwen, DeepSeek 等',
-        apiTypes: ['ollama'],
-        defaultApiType: 'ollama',
+    // Google Gemini
+    gemini: {
+        name: 'Google Gemini',
+        desc: 'Gemini 2.5 Pro, OpenAI format',
+        apiTypes: ['openai-completions'],
+        defaultApiType: 'openai-completions',
         urls: {
-            'ollama': 'http://127.0.0.1:11434/v1'
+            'Default': 'https://generativelanguage.googleapis.com/v1beta'
         },
-        models: ['llama3', 'qwen2.5', 'deepseek-r1'],
-        defaultModel: 'qwen2.5',
-        keyUrl: ''
+        models: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+        defaultModel: 'gemini-2.5-flash',
+        keyUrl: 'https://makersuite.google.com/app/apikey'
     }
 };
 
