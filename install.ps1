@@ -138,27 +138,25 @@ function Main {
     Write-Success "Node.js version: $nodeVersion"
     Write-Host ""
 
-    # Install/Check OpenClaw
-    if (-not (Install-OpenClaw)) {
+    # Check OpenClaw
+    if (-not (Test-OpenClaw)) {
         return
     }
 
-    # Web Configuration
+    # Start Web Configuration
     $skipConfig = $env:OPENCLAW_SKIP_CONFIG -eq "1"
     if (-not $skipConfig) {
         Start-WebConfiguration
     }
 
-    # Start Gateway
-    $skipStart = $env:OPENCLAW_SKIP_START -eq "1"
-    if (-not $skipStart) {
-        Start-Gateway
-    }
-
     Write-Host ""
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "  Installation Complete!" -ForegroundColor Green
+    Write-Host "  Setup Complete!" -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Next Steps:" -ForegroundColor Cyan
+    Write-Host "  1. Complete configuration in the web browser" -ForegroundColor White
+    Write-Host "  2. Gateway will start automatically after config" -ForegroundColor White
     Write-Host ""
     Write-Host "Common Commands:" -ForegroundColor Cyan
     Write-Host "  npx openclaw-web-config              - Web Configuration" -ForegroundColor White

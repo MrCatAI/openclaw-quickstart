@@ -1,95 +1,216 @@
 # OpenClaw Quickstart
 
-一键安装 OpenClaw，并引导完成模型与渠道配置（Telegram / Discord / Feishu），最后自动启动 Gateway。
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)](https://nodejs.org)
 
-## 一键安装（官方同款命令形态）
+One-click installer for OpenClaw with guided configuration for AI models and chat channels (Telegram, Discord, Feishu, WhatsApp, Slack).
 
-### 官方入口（openclaw.ai）
+[中文文档](#中文文档)
 
-```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex
-```
+## Quick Install
 
-```cmd
-curl -fsSL https://openclaw.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
-```
-
-```bash
-curl -fsSL https://openclaw.ai/install.sh | bash
-```
-
-### 自建入口（YOUR_DOMAIN）
-
-将 `YOUR_DOMAIN` 替换为你的安装域名（如 `https://install.example.com`）。
+### Windows (PowerShell)
 
 ```powershell
-$env:OPENCLAW_QUICKSTART_BASE_URL='https://YOUR_DOMAIN'
-iwr -useb https://YOUR_DOMAIN/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.ps1 | iex
 ```
+
+### Windows (CMD)
 
 ```cmd
-set OPENCLAW_QUICKSTART_BASE_URL=https://YOUR_DOMAIN && curl -fsSL https://YOUR_DOMAIN/install.cmd -o install.cmd && install.cmd && del install.cmd
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.cmd -o install.cmd && install.cmd
 ```
+
+### Linux/macOS
 
 ```bash
-curl -fsSL https://YOUR_DOMAIN/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.sh | bash
 ```
 
-## 安装流程会做什么
+## What This Does
 
-1. 检查并安装依赖（Node.js 22+）。
-2. 安装或更新 OpenClaw。
-3. 启动配置向导（优先 Web 配置页）。
-4. 保存模型 + 渠道配置到 `~/.openclaw/openclaw.json`。
-5. 启动 `openclaw gateway`。
-6. 配置完成后关闭 Web 配置服务。
+1. Checks dependencies (Node.js 22+)
+2. Launches web configuration wizard
+3. Saves model + channel config to `~/.openclaw/openclaw.json`
+4. Starts OpenClaw Gateway automatically
 
-## 模型套餐与提供商（已整理）
+## Supported AI Providers
 
-以下组合已在 `web-config.js` 预置，可在向导中直接选择。
+| Provider | API Format | Models | Notes |
+|----------|------------|--------|-------|
+| **Z.AI (GLM)** | OpenAI / Claude | glm-5, glm-4.7 | Dual format support |
+| **MiniMax** | Claude | M2.5, M2.1 | Claude-compatible |
+| **Kimi (Moonshot)** | OpenAI | kimi-k2.5 | 1T params |
+| **Kimi Coding** | Claude | k2p5 | Coding-optimized |
+| **DeepSeek** | OpenAI | deepseek-chat, deepseek-v3 | High value |
+| **Qwen** | OpenAI | qwen3.5-max | Alibaba |
+| **StepFun** | Claude / OpenAI | step-3.5-flash | Dual format |
+| **Volcengine** | OpenAI / Claude | doubao, glm, kimi | Multi-model subscription |
+| **OpenAI** | OpenAI | gpt-4.1, o3-mini | Official |
+| **Anthropic** | Claude | claude-sonnet-4-6 | Official |
+| **xAI** | OpenAI | grok-4 | Grok |
+| **Custom** | OpenAI / Claude | Any | Self-hosted |
 
-| 套餐/提供商 | API Base URL | 推荐模型 ID | API 类型 |
-|---|---|---|---|
-| Volcengine Coding Plan | `https://ark.cn-beijing.volces.com/api/coding/v3` | `ark-code-latest`, `doubao-seed-code`, `glm-4.7`, `kimi-k2.5` | `openai-completions` |
-| BytePlus Coding Plan | `https://ark.ap-southeast.bytepluses.com/api/coding/v3` | `ark-code-latest`, `doubao-seed-code`, `glm-4.7`, `kimi-k2.5` | `openai-completions` |
-| Bailian Coding Plan | `https://coding.dashscope.aliyuncs.com/v1` | `qwen-coder-plus`, `qwen-plus` | `openai-completions` |
-| OpenAI | `https://api.openai.com/v1` | `gpt-5`, `gpt-5.1-codex`, `gpt-5.3-codex` | `openai-responses` |
-| Anthropic Claude | `https://api.anthropic.com` | `claude-sonnet-4-5`, `claude-opus-4-6` | `anthropic-messages` |
-| DeepSeek | `https://api.deepseek.com/v1` | `deepseek-chat`, `deepseek-reasoner` | `openai-completions` |
-| Kimi / Moonshot | `https://api.moonshot.ai/v1` | `kimi-k2.5`, `kimi-k2-thinking` | `openai-completions` |
-| Kimi Coding | `https://api.kimi.com/coding/` | `k2p5` | `anthropic-messages` |
-| GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-4.6`, `glm-4.7`, `glm-4.7-flash` | `openai-completions` |
-| Qwen | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus`, `qwen-max`, `qwen3-coder-plus` | `openai-completions` |
-| MiniMax | `https://api.minimax.io/anthropic` | `MiniMax-M2.5`, `MiniMax-M2.5-Lightning`, `MiniMax-M2.1` | `anthropic-messages` |
-| Ollama（本地） | `http://127.0.0.1:11434` | `llama3.3:latest`, `deepseek-r1:latest` | `ollama` |
-| LM Studio（本地） | `http://127.0.0.1:1234/v1` | `local-model` | `openai-completions` |
+## API Formats Explained
 
-## 支持渠道
+### OpenAI Format (`openai-completions`)
+- Compatible with most LLM providers
+- Uses `/v1/chat/completions` endpoint
+- Recommended for: Z.AI, Kimi, DeepSeek, Qwen
 
-- Telegram
-- Discord
-- Feishu / Lark
+### Claude Format (`anthropic-messages`)
+- Native Anthropic API format
+- Required for: Anthropic Claude
+- Supported by: MiniMax, Kimi Coding, StepFun
 
-## 启动与关闭
+## Supported Channels
+
+| Channel | Setup | Features |
+|---------|--------|----------|
+| **Telegram** | [@BotFather](https://t.me/BotFather) | Popular messaging |
+| **Discord** | [Discord Dev Portal](https://discord.com/developers) | Gaming community |
+| **Feishu/Lark** | [Feishu Open](https://open.feishu.cn/app) | Enterprise |
+| **WhatsApp** | [Business API](https://developers.facebook.com/docs/whatsapp) | Global |
+| **Slack** | [Slack API](https://api.slack.com/apps) | Team collab |
+
+## Skills (Optional Extensions)
+
+| Skill | Description |
+|-------|-------------|
+| 🌤️ Weather | Real-time weather info |
+| 📝 Summarize | Auto content summary |
+| 🎤 Voice | Voice input/output |
+| 🎨 Canvas | Visual workspace |
+
+## Common Commands
 
 ```bash
-openclaw gateway status
-openclaw gateway stop
-openclaw gateway start
+# Web configuration
+npx openclaw-web-config
+
+# Start Gateway
+npx openclaw@latest gateway
+
+# Check status
+npx openclaw@latest gateway status
+
+# Chat with AI
+npx openclaw@latest agent --message "hi"
+
+# Channel management
+npx openclaw@latest channels status
+npx openclaw@latest channels add telegram
+
+# Skills
+npx openclaw@latest skills list
+npx openclaw@latest skills install weather
 ```
 
-Web 配置向导端口默认 `18792`，如需手动关闭：
+## Configuration File
 
+Location: `~/.openclaw/openclaw.json`
+
+Example structure:
+```json
+{
+  "models": {
+    "providers": {
+      "zai": {
+        "baseUrl": "https://open.bigmodel.cn/api/paas/v4",
+        "apiKey": "your-api-key",
+        "api": "openai-completions",
+        "models": [{"id": "glm-5", "name": "GLM-5"}]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {"primary": "zai/glm-5"}
+    }
+  },
+  "channels": {
+    "telegram": {
+      "dmPolicy": "pairing",
+      "botToken": "your-bot-token"
+    }
+  }
+}
+```
+
+## Troubleshooting
+
+### Port already in use
+
+Web config uses port 18792, Gateway uses 18789.
+
+**Windows:**
 ```powershell
 Get-NetTCPConnection -LocalPort 18792 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
 ```
 
+**Linux/macOS:**
 ```bash
 lsof -ti:18792 | xargs kill -9
 ```
 
-## 关键文件
+### Gateway won't start
 
-- 安装脚本：`install.ps1` / `install.cmd` / `install.sh`
-- Web 配置向导：`web-config.js`
-- 最终配置：`~/.openclaw/openclaw.json`
+Check config syntax:
+```bash
+npx openclaw-quickstart verify
+```
+
+### npx errors
+
+Update npm:
+```bash
+npm install -g npm@latest
+```
+
+## Repository Structure
+
+```
+openclaw-quickstart/
+├── install.ps1      # Windows PowerShell installer
+├── install.sh       # Linux/macOS installer
+├── install.cmd      # Windows CMD installer
+├── web-config.js    # Web configuration wizard
+├── verify.js        # Configuration verification tool
+├── bin/cli.js       # CLI configuration wizard
+└── package.json
+```
+
+## License
+
+MIT
+
+---
+
+# 中文文档
+
+## 一键安装
+
+### Windows (PowerShell)
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.ps1 | iex
+```
+
+### 国内镜像
+
+```powershell
+iwr -useb https://mirror.ghproxy.com/https://raw.githubusercontent.com/MrCatAI/openclaw-quickstart/master/install.ps1 | iex
+```
+
+## 支持的国产大模型
+
+| 提供商 | API 格式 | 模型 | 说明 |
+|--------|----------|------|------|
+| **智谱 AI (Z.AI)** | OpenAI / Claude | glm-5, glm-4.7 | 双格式支持 |
+| **MiniMax** | Claude | M2.5, M2.1 | Claude 兼容 |
+| **月之暗面 (Kimi)** | OpenAI | kimi-k2.5 | 1T 参数 |
+| **Kimi Coding** | Claude | k2p5 | 编码优化 |
+| **深度求索 (DeepSeek)** | OpenAI | deepseek-chat, deepseek-v3 | 高性价比 |
+| **通义千问 (Qwen)** | OpenAI | qwen3.5-max | 阿里云 |
+| **阶跃星辰 (StepFun)** | Claude / OpenAI | step-3.5-flash | 双格式 |
+| **火山方舟** | OpenAI / Claude | 豆包, GLM, Kimi | 聚合订阅 |
